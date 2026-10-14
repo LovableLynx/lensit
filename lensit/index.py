@@ -38,7 +38,7 @@ def build_index(photo_dir: str, expire_hours: float, event_name: str = "My event
         print(f"[{i + 1}/{len(photos)}] {p.name}: {len(e)} face(s)")
         if progress:
             progress(i + 1, len(photos))
-    DATA_DIR.mkdir(exist_ok=True)
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
     np.savez(DATA_DIR / "index.npz",
              vecs=np.concatenate(vecs) if vecs else np.zeros((0, 128), np.float32),
              owners=np.array(owners, np.int32))
