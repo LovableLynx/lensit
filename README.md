@@ -15,6 +15,9 @@ Offline, local-first event photo finder. A photographer indexes a shoot on their
 | Face recognition | SFace (opencv_zoo) | Apache-2.0 |
 
 ## Quick start (Windows, no coding)
+Download **LensIt.exe** from the [latest release](https://github.com/LovableLynx/lensit/releases/latest) and double-click it. No Python needed. If Windows shows "Windows protected your PC", click **More info → Run anyway** (the app isn't code-signed yet).
+
+### Or run from source with the launcher
 1. Install Python 3.11+ from python.org and tick **Add python.exe to PATH**.
 2. Download this repo as a ZIP and extract it.
 3. Double-click **`Start Lens It.bat`**. The first run sets everything up (needs internet once), then the setup screen opens in your browser.
