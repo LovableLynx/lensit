@@ -1,5 +1,5 @@
-models/
-data/
+/models/
+/data/
 __pycache__/
 .venv/
 *.zip
