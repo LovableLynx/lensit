@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LocalLens · Event photos, found offline</title>
+<meta name="description" content="Guests find every event photo they're in with one selfie. Runs on the photographer's laptop. No internet, no cloud, no monthly fee.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#04124c;--navy-2:#0b1d66;--orange:#f87a1b;--orange-light:#ffb37d;--orange-wash:#fff3ec;--cream:#fef7f3;--ink:#222;--muted:#656a76;--line:#e4e5e8;--green:#096;--blue:#2865ef;--blue-light:#eaf0ff;--white:#fff;--surface:#f9fafb}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:"Plus Jakarta Sans",ui-sans-serif,system-ui,sans-serif;background:var(--white);color:var(--ink);line-height:1.5;overflow-x:hidden}
+a{color:inherit}
+.wrap{max-width:1160px;margin:auto;padding:0 16px}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:14px 24px;font-weight:700;text-decoration:none;border:0;font-size:1rem;cursor:pointer;font-family:inherit;transition:transform .15s,background .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn.primary{background:var(--orange);color:var(--white)}
+.btn.primary:hover{background:#e56a0e}
+.btn.ghost{background:var(--white);color:var(--navy);border:1px solid var(--line)}
+.btn.light{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.25)}
+.eyebrow{display:inline-block;font-size:.82rem;font-weight:700;color:var(--orange);background:var(--orange-wash);padding:6px 14px;border-radius:999px}
+.dark .eyebrow{background:rgba(248,122,27,.15)}
+h1,h2,h3{color:var(--navy);letter-spacing:-.03em;margin:0}
+h2{font-size:clamp(1.9rem,4vw,2.8rem);line-height:1.08;margin:16px 0 12px}
+section{padding:96px 0}
+.lead{color:var(--muted);font-size:1.1rem;max-width:580px}
+.center{text-align:center}.center .lead{margin:auto}
+.dark{background:var(--navy);color:#fff}.dark h2,.dark h3{color:#fff}.dark .lead{color:rgba(255,255,255,.7)}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}*{animation:none!important;scroll-behavior:auto!important}}
+
+/* header */
+header{position:sticky;top:0;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);z-index:20}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1.3rem;color:var(--navy);text-decoration:none;letter-spacing:-.03em}
+.logo span{color:var(--orange)}
+.logo svg{width:28px;height:28px}
+nav a{margin-left:26px;text-decoration:none;color:var(--muted);font-weight:600;font-size:.95rem}
+nav a:hover{color:var(--navy)}
+header .btn{padding:10px 18px;font-size:.9rem}
+
+/* hero */
+.hero{background:radial-gradient(1000px 500px at 85% 20%,#ffe4cf 0,transparent 60%),var(--cream);padding:72px 0 96px;position:relative}
+.hero .wrap{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center}
+.hero h1{font-size:clamp(2.6rem,6vw,4.4rem);line-height:1;margin:18px 0}
+.hero h1 em{font-style:normal;color:var(--orange);position:relative}
+.hero h1 em::after{content:"";position:absolute;left:0;right:0;bottom:.05em;height:.14em;background:var(--orange-light);opacity:.45;border-radius:4px;z-index:-1}
+.hero .ctas{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.hero .proof{display:flex;gap:18px;flex-wrap:wrap;margin-top:28px;color:var(--muted);font-weight:600;font-size:.9rem}
+.hero .proof span::before{content:"✓ ";color:var(--green)}
+.phone{position:relative;justify-self:center;width:290px;background:var(--navy);border-radius:42px;padding:12px;box-shadow:0 40px 80px -24px rgba(4,18,76,.45);animation:bob 6s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-10px)}}
+.screen{background:var(--cream);border-radius:32px;padding:20px 14px;min-height:520px;overflow:hidden}
+.screen .mini{font-weight:800;color:var(--navy);font-size:.9rem}.screen .mini span{color:var(--orange)}
+.screen h4{color:var(--navy);margin:14px 0 2px;font-size:1.15rem;letter-spacing:-.02em}
+.screen p{font-size:.78rem;color:var(--muted);margin:0 0 12px}
+.screen .thumbs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.screen .thumbs .ph{aspect-ratio:1;border-radius:14px}
+.screen .dl{margin-top:12px;background:var(--navy);color:#fff;text-align:center;border-radius:999px;padding:10px;font-weight:700;font-size:.85rem}
+.float{position:absolute;background:var(--white);border-radius:18px;padding:12px 14px;box-shadow:0 14px 34px -12px rgba(4,18,76,.35);font-size:.82rem;font-weight:700;color:var(--navy);white-space:nowrap}
+.float small{display:block;color:var(--muted);font-weight:600}
+.f1{left:-110px;top:80px;animation:bob 5s ease-in-out infinite reverse}.f2{right:-90px;bottom:100px;animation:bob 7s ease-in-out infinite}
+.f1 .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:6px;box-shadow:0 0 0 4px rgba(0,153,102,.2)}
+
+/* photo tiles (shared by hero + demo) */
+.ph{position:relative;overflow:hidden;background:linear-gradient(160deg,var(--c1),var(--c2))}
+.ph svg{position:absolute;inset:0;width:100%;height:100%}
+.ph .wm{position:absolute;left:0;right:0;bottom:6px;text-align:center;font-size:.55rem;font-weight:800;letter-spacing:.14em;color:rgba(255,255,255,.75)}
+
+/* marquee */
+.marquee{background:var(--navy);color:#fff;overflow:hidden;padding:20px 0;white-space:nowrap}
+.track{display:inline-flex;gap:44px;animation:scroll 32s linear infinite;font-weight:700;font-size:1.05rem}
+.track span{opacity:.9}.track span::before{content:"✦ ";color:var(--orange)}
+@keyframes scroll{to{transform:translateX(-50%)}}
+
+/* problem */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:44px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:30px;text-align:left}
+.stat b{display:block;font-size:2.6rem;color:var(--orange);letter-spacing:-.03em;line-height:1.1}
+.stat span{color:var(--muted);font-weight:600}
+
+/* demo */
+.demo{background:var(--cream)}
+.demo-box{display:grid;grid-template-columns:300px 1fr;gap:24px;margin-top:40px;background:var(--white);border:1px solid var(--line);border-radius:30px;padding:24px}
+.guests h3{font-size:1rem;margin-bottom:4px}
+.guests p{color:var(--muted);font-size:.9rem;margin:0 0 14px}
+.guest{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border:1px solid var(--line);border-radius:18px;background:var(--white);cursor:pointer;margin-bottom:10px;font-family:inherit;font-size:1rem;font-weight:700;color:var(--navy);text-align:left;transition:border-color .15s,background .15s}
+.guest:hover{border-color:var(--orange-light)}
+.guest.on{border-color:var(--orange);background:var(--orange-wash)}
+.guest .av{width:44px;height:44px;border-radius:50%;flex:none;display:grid;place-items:center}
+.guest small{display:block;color:var(--muted);font-weight:600;font-size:.8rem}
+.result{margin-top:14px;padding:14px;border-radius:18px;background:var(--navy);color:#fff;font-weight:700;min-height:74px}
+.result small{display:block;color:var(--orange-light);font-weight:600}
+.grid-wrap{position:relative}
+.pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.pgrid .ph{aspect-ratio:4/3;border-radius:16px;transition:opacity .35s,transform .35s,box-shadow .35s}
+.pgrid .ph.dim{opacity:.18;transform:scale(.97)}
+.pgrid .ph.hit{box-shadow:0 0 0 3px var(--orange);transform:scale(1.02)}
+.pgrid .ph.hit::after{content:"✓";position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;background:var(--orange);color:#fff;font-size:.75rem;font-weight:800;display:grid;place-items:center}
+.scan{position:absolute;left:-6px;right:-6px;height:4px;background:var(--orange);box-shadow:0 0 18px 4px rgba(248,122,27,.6);border-radius:4px;top:0;opacity:0;pointer-events:none}
+.scan.go{animation:scan 1.2s ease-in-out}
+@keyframes scan{0%{top:0;opacity:1}100%{top:100%;opacity:1}}
+.demo-note{font-size:.82rem;color:var(--muted);margin-top:12px}
+
+/* how */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:40px;position:relative}
+.step{background:var(--white);border:1px solid var(--line);border-radius:24px;padding:26px;position:relative}
+.step .n{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:var(--orange-wash);color:var(--orange);font-weight:800}
+.step h3{font-size:1.15rem;margin:16px 0 8px}
+.step p{color:var(--muted);margin:0;font-size:.95rem}
+
+/* for who */
+.who{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px}
+.who .card{border-radius:24px;padding:26px;color:#fff;min-height:200px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.who .card .n{font-weight:800;opacity:.7}
+.who .card h3{color:#fff;font-size:1.3rem;margin:24px 0 6px}
+.who .card p{margin:0;opacity:.85;font-size:.95rem}
+.who .card::after{content:"↗";position:absolute;top:20px;right:22px;font-size:1.3rem;opacity:.7}
+
+/* calculator */
+.calc{display:grid;grid-template-columns:1.1fr 1fr;gap:24px;margin-top:40px}
+.calc .panel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:30px;padding:28px}
+.field{margin-bottom:22px}
+.field label{display:flex;justify-content:space-between;font-weight:600;color:rgba(255,255,255,.85);margin-bottom:10px}
+.field label b{color:var(--orange-light)}
+input[type=range]{width:100%;accent-color:var(--orange);height:6px}
+.out{background:var(--white);color:var(--navy);border-radius:30px;padding:30px;display:flex;flex-direction:column;justify-content:center}
+.out small{color:var(--muted);font-weight:600}
+.out .big{font-size:clamp(2.4rem,5vw,3.4rem);font-weight:800;color:var(--orange);letter-spacing:-.03em;line-height:1.1;margin:6px 0 18px}
+.out .row{display:flex;justify-content:space-between;padding:12px 0;border-top:1px solid var(--line);font-weight:600}
+.out .row b{color:var(--navy)}
+.out .row .zero{color:var(--green)}
+.out .fine{font-size:.78rem;color:var(--muted);margin-top:12px}
+
+/* privacy */
+.privacy .wrap{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.flow{background:var(--navy);border-radius:30px;padding:30px;color:#fff;position:relative}
+.node{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:18px;padding:14px 16px;font-weight:600;display:flex;gap:12px;align-items:center}
+.node .ic{width:38px;height:38px;border-radius:12px;background:rgba(248,122,27,.18);display:grid;place-items:center;flex:none;font-size:1.1rem}
+.node small{display:block;color:var(--orange-light);font-weight:600}
+.arrow{position:relative;height:36px;margin-left:34px;border-left:2px dashed rgba(255,179,125,.5)}
+.arrow i{position:absolute;left:-6px;width:10px;height:10px;border-radius:50%;background:var(--orange);animation:pkt 1.6s linear infinite}
+@keyframes pkt{from{top:0}to{top:100%}}
+.arrow span{position:absolute;left:16px;top:8px;font-size:.78rem;color:var(--orange-light)}
+.cloud{margin-top:16px;border:1px dashed rgba(255,255,255,.3);border-radius:18px;padding:12px;text-align:center;color:rgba(255,255,255,.55)}
+.cloud s{text-decoration-color:var(--orange);text-decoration-thickness:2px}
+.ticks{list-style:none;padding:0;margin:22px 0 0}
+.ticks li{padding:12px 0;border-bottom:1px solid var(--line);font-weight:600;display:flex;gap:10px}
+.ticks li::before{content:"✓";color:var(--green);font-weight:800}
+
+/* compare */
+table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:24px;overflow:hidden;margin-top:36px}
+th,td{padding:16px 20px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--surface);color:var(--navy)}
+th:nth-child(2){background:var(--orange);color:#fff}
+td:nth-child(2){font-weight:700;color:var(--navy);background:var(--orange-wash)}
+tr:last-child td{border-bottom:0}
+
+/* open */
+.open{background:var(--cream)}
+.ogrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:36px}
+.card{background:var(--white);border:1px solid var(--line);border-radius:24px;padding:26px}
+.card h3{font-size:1.15rem;margin-bottom:6px}
+.card p{color:var(--muted);margin:0}
+.tag{display:inline-block;background:var(--blue-light);color:var(--navy);padding:3px 10px;border-radius:999px;font-size:.78rem;font-weight:700;margin-top:12px}
+.term{margin-top:24px;background:var(--navy);border-radius:24px;padding:22px 24px;font-family:ui-monospace,Consolas,monospace;color:#d6defa;font-size:.9rem;overflow-x:auto}
+.term .p{color:var(--orange-light)}
+.term .c{color:rgba(214,222,250,.5)}
+
+/* faq */
+.faq{max-width:820px;margin:36px auto 0}
+details{border:1px solid var(--line);border-radius:20px;padding:4px 22px;margin-bottom:12px;background:var(--white)}
+details[open]{border-color:var(--orange-light);background:var(--orange-wash)}
+summary{cursor:pointer;list-style:none;font-weight:700;color:var(--navy);padding:16px 0;display:flex;justify-content:space-between;gap:12px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--orange);font-size:1.4rem;line-height:1;transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{color:var(--muted);margin:0 0 18px}
+
+/* cta */
+.cta{background:linear-gradient(135deg,var(--navy),var(--navy-2));color:#fff;border-radius:36px;padding:64px 32px;text-align:center;position:relative;overflow:hidden}
+.cta::before,.cta::after{content:"";position:absolute;border-radius:50%;background:var(--orange);opacity:.18}
+.cta::before{width:320px;height:320px;top:-120px;left:-80px}.cta::after{width:240px;height:240px;bottom:-110px;right:-40px}
+.cta h2{color:#fff;font-size:clamp(2rem,4.5vw,3.2rem);position:relative}
+.cta p{color:rgba(255,255,255,.75);position:relative}
+.cta .ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px;position:relative}
+.cta ol{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;list-style:none;padding:0;margin:32px 0 0;color:rgba(255,255,255,.8);font-weight:600;position:relative}
+.cta ol b{color:var(--orange-light)}
+
+footer{background:var(--navy);color:rgba(255,255,255,.7);padding:56px 0 28px;font-size:.92rem;margin-top:96px}
+.fcols{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:24px}
+footer h4{color:#fff;margin:0 0 12px;font-size:.95rem}
+footer a{display:block;color:rgba(255,255,255,.75);text-decoration:none;padding:4px 0}
+footer a:hover{color:#fff}
+footer .logo{color:#fff}
+.fbot{border-top:1px solid rgba(255,255,255,.12);margin-top:40px;padding-top:20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+
+@media (max-width:900px){
+  nav{display:none}
+  .hero .wrap,.privacy .wrap,.calc{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr 1fr}
+  .who{grid-template-columns:1fr 1fr}
+  .stats,.ogrid{grid-template-columns:1fr}
+  .demo-box{grid-template-columns:1fr}
+  .fcols{grid-template-columns:1fr 1fr}
+  .f1{left:-24px;top:-14px}.f2{right:-24px}
+  section{padding:64px 0}
+}
+@media (max-width:560px){
+  .steps,.who{grid-template-columns:1fr}
+  .pgrid{grid-template-columns:repeat(3,1fr)}
+  th,td{padding:12px 10px;font-size:.86rem}
+  .phone{width:250px}
+  .f1,.f2{display:none}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="person" viewBox="0 0 40 60"><circle cx="20" cy="16" r="11"/><path d="M2 60c0-14 8-24 18-24s18 10 18 24z"/></symbol>
+  </defs>
+</svg>
+
+<header>
+  <div class="wrap">
+    <a class="logo" href="#"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="10" fill="#04124c"/><circle cx="16" cy="16" r="8" fill="none" stroke="#f87a1b" stroke-width="3"/><circle cx="16" cy="16" r="3" fill="#fff"/></svg>Local<span>Lens</span></a>
+    <nav><a href="#demo">Live demo</a><a href="#how">How it works</a><a href="#earn">Earnings</a><a href="#privacy">Privacy</a><a href="#faq">FAQ</a></nav>
+    <a class="btn primary" href="https://github.com/">Get LocalLens</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="eyebrow">For event photographers · Free &amp; open source</span>
+      <h1>One selfie.<br>Every photo.<br><em>No internet.</em></h1>
+      <p class="lead">Guests scan a QR code, snap a selfie, and see every photo they're in. It all runs on your laptop, so it works at any venue, costs nothing per event, and no face ever touches the cloud.</p>
+      <div class="ctas">
+        <a class="btn primary" href="#demo">Try the live demo →</a>
+        <a class="btn ghost" href="https://github.com/">Download free</a>
+      </div>
+      <div class="proof"><span>No guest sign-up</span><span>Works offline</span><span>Runs on an 8 GB laptop</span></div>
+    </div>
+    <div class="phone reveal" aria-hidden="true">
+      <div class="screen">
+        <div class="mini">Local<span>Lens</span></div>
+        <h4>Found 4 photos of you!</h4>
+        <p>Tolu &amp; Femi's Wedding</p>
+        <div class="thumbs" id="heroThumbs"></div>
+        <div class="dl">Download all →</div>
+      </div>
+      <div class="float f1"><span class="dot"></span>Offline mode<small>No internet needed</small></div>
+      <div class="float f2">✓ Selfie never saved<small>Deleted after the event</small></div>
+    </div>
+  </div>
+</section>
+
+<div class="marquee" aria-label="Events LocalLens is built for">
+  <div class="track" id="track"></div>
+</div>
+
+<section class="center">
+  <div class="wrap reveal">
+    <span class="eyebrow">The problem</span>
+    <h2>You shot 2,000 photos.<br>Guests will scroll through 40.</h2>
+    <p class="lead">At weddings, owambes, graduations and church events, guests never find the shots they're in. That's money and goodwill left on the table.</p>
+    <div class="stats">
+      <div class="stat"><b data-count="2000" data-suffix="+">0</b><span>photos from one big event</span></div>
+      <div class="stat"><b>1</b><span>selfie to find all of yours</span></div>
+      <div class="stat"><b>₦0</b><span>per event to run LocalLens</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="demo" id="demo">
+  <div class="wrap">
+    <div class="center reveal">
+      <span class="eyebrow">Live demo</span>
+      <h2>Pick a guest. Watch LocalLens find them.</h2>
+      <p class="lead">This is a simulation of what happens on the photographer's laptop when a guest sends a selfie.</p>
+    </div>
+    <div class="demo-box reveal">
+      <div class="guests">
+        <h3>Who's taking a selfie?</h3>
+        <p>Tap a guest to search 16 event photos.</p>
+        <div id="guestList"></div>
+        <div class="result" id="result"><small>Waiting for a selfie…</small>Tap a guest to start</div>
+      </div>
+      <div class="grid-wrap">
+        <div class="pgrid" id="pgrid"></div>
+        <div class="scan" id="scan"></div>
+        <p class="demo-note">Illustration only. In the real app, matching runs on open-source face models over your local Wi-Fi.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="eyebrow">How LocalLens works</span>
+      <h2>Load it. Share it. Deliver it.</h2>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><div class="n">01</div><h3>Load your shoot</h3><p>Pick your event folder in the setup screen. LocalLens finds every face, right on your laptop.</p></div>
+      <div class="step reveal"><div class="n">02</div><h3>Print the QR poster</h3><p>Turn on your hotspot and place the poster at the entrance, reception or photo booth.</p></div>
+      <div class="step reveal"><div class="n">03</div><h3>Guests snap a selfie</h3><p>One-line consent, one selfie. No app download, no account, no data plan needed.</p></div>
+      <div class="step reveal"><div class="n">04</div><h3>They get their photos</h3><p>Watermarked previews in seconds, then a one-tap ZIP of the full-resolution shots.</p></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="eyebrow">Built for</span>
+      <h2>Every event where faces matter.</h2>
+    </div>
+    <div class="who">
+      <div class="card reveal" style="background:linear-gradient(150deg,#f87a1b,#c4530a)"><span class="n">01</span><div><h3>Weddings &amp; owambes</h3><p>Hundreds of guests, aso-ebi everywhere. Everyone wants their picture.</p></div></div>
+      <div class="card reveal" style="background:linear-gradient(150deg,#2865ef,#04124c)"><span class="n">02</span><div><h3>Convocations</h3><p>Graduates and families find their moment without endless scrolling.</p></div></div>
+      <div class="card reveal" style="background:linear-gradient(150deg,#096,#04124c)"><span class="n">03</span><div><h3>Church &amp; mosque events</h3><p>Weddings, dedications and conventions, even with no signal.</p></div></div>
+      <div class="card reveal" style="background:linear-gradient(150deg,#04124c,#2865ef)"><span class="n">04</span><div><h3>Marathons &amp; sports</h3><p>Runners find their finish-line shot before they cool down.</p></div></div>
+      <div class="card reveal" style="background:linear-gradient(150deg,#c4530a,#04124c)"><span class="n">05</span><div><h3>Corporate events</h3><p>Conferences and launches where attendees' data must stay private.</p></div></div>
+      <div class="card reveal" style="background:linear-gradient(150deg,#096,#2865ef)"><span class="n">06</span><div><h3>Birthdays &amp; reunions</h3><p>Smaller shoots, same magic. Works with any folder of photos.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="dark" id="earn">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="eyebrow">Earnings planner</span>
+      <h2>Turn unseen photos into income.</h2>
+      <p class="lead">Move the sliders to estimate what one event could earn when guests can actually find their photos.</p>
+    </div>
+    <div class="calc reveal">
+      <div class="panel">
+        <div class="field"><label for="g">Guests at the event <b id="gv"></b></label><input type="range" id="g" min="50" max="1000" step="10" value="300"></div>
+        <div class="field"><label for="b">Guests who buy <b id="bv"></b></label><input type="range" id="b" min="5" max="60" step="1" value="20"></div>
+        <div class="field"><label for="n">Photos per buyer <b id="nv"></b></label><input type="range" id="n" min="1" max="15" step="1" value="4"></div>
+        <div class="field" style="margin:0"><label for="p">Price per photo <b id="pv"></b></label><input type="range" id="p" min="200" max="5000" step="100" value="1000"></div>
+      </div>
+      <div class="out">
+        <small>Estimated extra income from this event</small>
+        <div class="big" id="total">₦0</div>
+        <div class="row"><span>Photos sold</span><b id="sold">0</b></div>
+        <div class="row"><span>Buyers</span><b id="buyers">0</b></div>
+        <div class="row"><span>LocalLens cost</span><b class="zero">₦0</b></div>
+        <p class="fine">An illustrative estimate, not a guarantee. Payment is handled your way (e.g. bank transfer) for now.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="privacy" id="privacy">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="eyebrow">Privacy by design</span>
+      <h2>Faces stay in the room.</h2>
+      <p class="lead">Most selfie-search services upload guests' faces to a cloud server. LocalLens matches on the photographer's laptop over the venue's own Wi-Fi.</p>
+      <ul class="ticks">
+        <li>Selfies are processed in memory and never written to disk</li>
+        <li>Face index auto-deletes after 1, 3 or 7 days, or instantly on demand</li>
+        <li>Guests agree to a consent note before the camera opens</li>
+        <li>Setup screens can't be opened from guests' phones</li>
+        <li>Your original photos are never modified</li>
+      </ul>
+    </div>
+    <div class="flow reveal" aria-label="Data flow: guest phone to photographer laptop and back, no cloud">
+      <div class="node"><span class="ic">📱</span><div><small>Guest's phone</small>Selfie + consent</div></div>
+      <div class="arrow"><i></i><span>venue Wi-Fi / hotspot</span></div>
+      <div class="node"><span class="ic">💻</span><div><small>Photographer's laptop</small>Open-source face matching</div></div>
+      <div class="arrow"><i style="animation-delay:.8s"></i><span>watermarked previews</span></div>
+      <div class="node"><span class="ic">🖼️</span><div><small>Back to the guest</small>Their photos only</div></div>
+      <div class="cloud">☁️ <s>Cloud server</s> · not involved</div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0" id="compare">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="eyebrow">Why offline wins</span>
+      <h2>Built for venues with bad network.</h2>
+    </div>
+    <table class="reveal">
+      <thead><tr><th></th><th>LocalLens</th><th>Cloud selfie-search apps</th></tr></thead>
+      <tbody>
+        <tr><td>Needs internet at the venue</td><td>No</td><td>Yes</td></tr>
+        <tr><td>Where guests' faces go</td><td>Your laptop only</td><td>A company's servers</td></tr>
+        <tr><td>Cost per event</td><td>₦0</td><td>Subscription or per-photo fees</td></tr>
+        <tr><td>Guest sign-up</td><td>None</td><td>Often required</td></tr>
+        <tr><td>Can you change how it works?</td><td>Yes, it's open source</td><td>No</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="open" id="open">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="eyebrow">Open-source AI at the core</span>
+      <h2>Open models. Your machine. Your rules.</h2>
+      <p class="lead">LocalLens runs open-weight face models with OpenCV on an ordinary CPU. No GPU, no API key, no vendor lock-in.</p>
+    </div>
+    <div class="ogrid">
+      <div class="card reveal"><h3>YuNet</h3><p>Finds every face in every photo, fast enough for a 5-year-old laptop.</p><span class="tag">Apache-2.0</span></div>
+      <div class="card reveal"><h3>SFace</h3><p>Turns each face into a 128-number fingerprint that can be compared, not a stored photo.</p><span class="tag">Apache-2.0 weights</span></div>
+      <div class="card reveal"><h3>FastAPI</h3><p>Serves the guest page and setup screens over your local network.</p><span class="tag">MIT</span></div>
+    </div>
+    <div class="term reveal" aria-label="Install commands">
+      <div class="c"># install once</div>
+      <div><span class="p">$</span> pip install -r requirements.txt</div>
+      <div class="c"># start at the venue, then open localhost:8000/setup</div>
+      <div><span class="p">$</span> python -m locallens serve</div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="center reveal">
+      <span class="eyebrow">Questions</span>
+      <h2>Good to know.</h2>
+    </div>
+    <div class="faq reveal">
+      <details><summary>Do guests need to download an app or sign up?</summary><p>No. They scan the QR code, agree to a short consent note and take a selfie in their phone's browser.</p></details>
+      <details><summary>Does it really work without internet?</summary><p>Yes. Your laptop creates or joins a local Wi-Fi network and serves everything itself. Guests connect to that network, not the internet.</p></details>
+      <details><summary>What happens to guests' selfies?</summary><p>The selfie is processed in memory to find matches, then discarded. It's never saved to disk or uploaded anywhere. The face index of your event photos is deleted automatically when the event expires.</p></details>
+      <details><summary>What laptop do I need?</summary><p>An ordinary Windows, Mac or Linux laptop with Python. It's been built and tested on an 8 GB Intel i5 with no GPU.</p></details>
+      <details><summary>How accurate is the matching?</summary><p>It works best with clear, front-facing selfies and reasonably lit photos. We're testing on real events now and will publish the results, including misses.</p></details>
+      <details><summary>How do I get paid?</summary><p>For now, guests see watermarked previews and you share full photos after payment by transfer. Built-in payments are on the roadmap.</p></details>
+      <details><summary>Is it free?</summary><p>Yes. LocalLens is open source. There's no subscription and no per-event fee.</p></details>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="cta reveal">
+    <span class="eyebrow">Ready for your next event?</span>
+    <h2 style="margin-top:16px">Shoot it. Load it.<br>Let them find it.</h2>
+    <p>Free, offline and private. Set up in minutes.</p>
+    <div class="ctas">
+      <a class="btn primary" href="https://github.com/">Get LocalLens free →</a>
+      <a class="btn light" href="#demo">Try the demo again</a>
+    </div>
+    <ol><li><b>01</b> Offline</li><li><b>02</b> Private</li><li><b>03</b> Free</li><li><b>04</b> Open source</li></ol>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="fcols">
+      <div><a class="logo" href="#">Local<span style="color:var(--orange)">Lens</span></a><p>Event photos, found offline.<br>Made in Nigeria for photographers everywhere.</p></div>
+      <div><h4>Product</h4><a href="#demo">Live demo</a><a href="#how">How it works</a><a href="#earn">Earnings planner</a></div>
+      <div><h4>Trust</h4><a href="#privacy">Privacy</a><a href="#compare">Why offline</a><a href="#faq">FAQ</a></div>
+      <div><h4>Open source</h4><a href="https://github.com/">GitHub</a><a href="#open">Models &amp; licences</a></div>
+    </div>
+    <div class="fbot"><span>© 2026 LocalLens · Built for Hacktoberfest 2026</span><span>No cookies. No tracking.</span></div>
+  </div>
+</footer>
+
+<script>
+/* ---------- illustrated photos ---------- */
+const GUESTS = [
+  {id: 'tolu', name: 'Tolu', role: 'The bride', skin: '#8d5524', cloth: '#f8f4ec'},
+  {id: 'femi', name: 'Femi', role: 'The groom', skin: '#5c3a1e', cloth: '#04124c'},
+  {id: 'bisi', name: 'Aunty Bisi', role: 'In orange aso-ebi', skin: '#a0663a', cloth: '#f87a1b'},
+  {id: 'kunle', name: 'Kunle', role: 'Best man', skin: '#6b4423', cloth: '#096'},
+];
+const EXTRA = [{skin: '#7a4b2a', cloth: '#2865ef'}, {skin: '#9a6239', cloth: '#ffb37d'}, {skin: '#4e321b', cloth: '#c4530a'}];
+const BGS = [['#ffe4cf', '#ffb37d'], ['#eaf0ff', '#9db8ff'], ['#e3f5ee', '#8fd3b8'], ['#fef7f3', '#f5cba7'], ['#e9e3ff', '#b7a7f5']];
+// which people appear in each of the 16 photos
+const PHOTOS = [
+  ['tolu', 'femi'], ['bisi', 0], ['kunle', 1, 2], ['tolu', 'bisi'],
+  [0, 1], ['femi', 'kunle'], ['tolu'], [2, 'bisi', 0],
+  ['tolu', 'femi', 'kunle'], [1], ['bisi'], [0, 2],
+  ['femi'], ['tolu', 1], [2, 'kunle'], ['tolu', 'femi', 'bisi', 'kunle'],
+];
+const look = p => typeof p === 'number' ? EXTRA[p] : GUESTS.find(g => g.id === p);
+function personSvg(people) {
+  const w = 100 / (people.length + 1);
+  return `<svg viewBox="0 0 100 75" preserveAspectRatio="xMidYMax meet">${people.map((p, i) => {
+    const l = look(p), x = w * (i + 1) - 13;
+    return `<g transform="translate(${x} 22)"><circle cx="13" cy="12" r="9" fill="${l.skin}"/><path d="M0 53c0-14 6-24 13-24s13 10 13 24z" fill="${l.cloth}"/></g>`;
+  }).join('')}</svg>`;
+}
+function tile(people, i, wm) {
+  const [c1, c2] = BGS[i % BGS.length];
+  return `<div class="ph" style="--c1:${c1};--c2:${c2}">${personSvg(people)}${wm ? '<span class="wm">PREVIEW</span>' : ''}</div>`;
+}
+heroThumbs.innerHTML = [0, 3, 6, 13].map(i => tile(PHOTOS[i], i, true)).join('');
+pgrid.innerHTML = PHOTOS.map((p, i) => tile(p, i, false)).join('');
+
+/* ---------- live demo ---------- */
+guestList.innerHTML = GUESTS.map(g => `<button class="guest" data-id="${g.id}"><span class="av" style="background:var(--orange-wash)"><svg width="30" height="40" viewBox="0 0 40 60"><circle cx="20" cy="16" r="11" fill="${g.skin}"/><path d="M2 60c0-14 8-24 18-24s18 10 18 24z" fill="${g.cloth}" stroke="#e4e5e8"/></svg></span><span>${g.name}<small>${g.role}</small></span></button>`).join('');
+const tiles = [...pgrid.children];
+let busy = false;
+guestList.onclick = e => {
+  const b = e.target.closest('.guest'); if (!b || busy) return;
+  busy = true;
+  document.querySelectorAll('.guest').forEach(x => x.classList.toggle('on', x === b));
+  const g = GUESTS.find(x => x.id === b.dataset.id);
+  tiles.forEach(t => t.classList.remove('dim', 'hit'));
+  result.innerHTML = `<small>Matching ${g.name}'s selfie on the laptop…</small>Scanning 16 photos`;
+  scan.classList.remove('go'); void scan.offsetWidth; scan.classList.add('go');
+  setTimeout(() => {
+    let n = 0;
+    PHOTOS.forEach((p, i) => { const hit = p.includes(g.id); n += hit; tiles[i].classList.add(hit ? 'hit' : 'dim'); });
+    result.innerHTML = `<small>Done · selfie discarded</small>Found ${n} photos of ${g.name} 🎉`;
+    busy = false;
+  }, 1200);
+};
+
+/* ---------- earnings planner ---------- */
+const fmt = v => '₦' + Math.round(v).toLocaleString('en-NG');
+function calc() {
+  const G = +g.value, B = +b.value, N = +n.value, P = +p.value;
+  gv.textContent = G; bv.textContent = B + '%'; nv.textContent = N; pv.textContent = fmt(P);
+  const buyersN = Math.round(G * B / 100), soldN = buyersN * N;
+  buyers.textContent = buyersN.toLocaleString(); sold.textContent = soldN.toLocaleString(); total.textContent = fmt(soldN * P);
+}
+[g, b, n, p].forEach(el => el.oninput = calc); calc();
+
+/* ---------- marquee ---------- */
+const events = ['Weddings', 'Owambes', 'Convocations', 'Church conventions', 'Child dedications', 'Marathons', 'Corporate launches', 'Birthdays', 'Reunions', 'Award nights'];
+track.innerHTML = [...events, ...events].map(e => `<span>${e}</span>`).join('');
+
+/* ---------- reveal + counters ---------- */
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  e.target.classList.add('in'); io.unobserve(e.target);
+  e.target.querySelectorAll('[data-count]').forEach(el => {
+    const end = +el.dataset.count, t0 = performance.now();
+    const step = t => { const k = Math.min(1, (t - t0) / 1200); el.textContent = Math.round(end * k * (2 - k)).toLocaleString() + (k === 1 ? el.dataset.suffix || '' : ''); if (k < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  });
+}), {threshold: .15});
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Find your photos · LocalLens</title>
+<style>
+:root{--navy:#04124c;--orange:#f87a1b;--orange-wash:#fff3ec;--cream:#fef7f3;--ink:#222;--muted:#656a76;--line:#e4e5e8;--green:#096;--white:#fff}
+*{box-sizing:border-box}
+body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--cream);color:var(--ink)}
+main{max-width:720px;margin:auto;padding:24px 16px 48px}
+.brand{font-weight:800;color:var(--navy);letter-spacing:-.02em}
+.brand span{color:var(--orange)}
+.eyebrow{display:inline-block;font-size:.8rem;font-weight:600;color:var(--orange);background:var(--orange-wash);padding:6px 12px;border-radius:999px;margin-top:28px}
+h1{font-size:2rem;line-height:1.1;color:var(--navy);margin:12px 0 8px;letter-spacing:-.03em}
+p{color:var(--muted);line-height:1.5}
+.card{background:var(--white);border:1px solid var(--line);border-radius:24px;padding:20px;margin-top:20px}
+.card h2{margin:0 0 8px;font-size:1.05rem;color:var(--navy)}
+.check{display:flex;gap:10px;align-items:flex-start;margin-top:12px;color:var(--ink);line-height:1.45;cursor:pointer}
+.check input{width:20px;height:20px;accent-color:var(--orange);margin-top:2px;flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--orange);color:var(--white);border:0;border-radius:999px;padding:14px 24px;font-size:1rem;font-weight:700;text-decoration:none;cursor:pointer;width:100%;margin-top:16px}
+.btn.secondary{background:var(--navy)}
+.btn[aria-disabled=true]{opacity:.4;pointer-events:none}
+ul.ticks{list-style:none;padding:0;margin:8px 0 0}
+ul.ticks li{padding:4px 0;color:var(--ink)}
+ul.ticks li::before{content:"✓ ";color:var(--green);font-weight:700}
+#msg{font-weight:600;color:var(--navy)}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:16px}
+#grid img{width:100%;border-radius:18px;display:block}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<main>
+  <div class="brand">Local<span>Lens</span></div>
+
+  <div id="notready" class="hidden">
+    <span class="eyebrow">Almost there</span>
+    <h1>Photos are on their way.</h1>
+    <p>The photographer is still loading this event. Check back in a few minutes.</p>
+  </div>
+
+  <div id="flow" class="hidden">
+    <span class="eyebrow">{{event_name}}</span>
+    <h1>Snap a selfie. Find your photos.</h1>
+    <p>Every photo you appear in, in seconds. No app. No sign-up.</p>
+
+    <div class="card" id="consentCard">
+      <h2>Before you start</h2>
+      <ul class="ticks">
+        <li>Your selfie is matched on the photographer's laptop, over this Wi-Fi.</li>
+        <li>It is never saved and never sent to the internet.</li>
+        <li>All face data is deleted after the event.</li>
+      </ul>
+      <label class="check"><input type="checkbox" id="agree"> I agree to my selfie being used only to find my photos at this event.</label>
+      <label class="btn" id="snap" aria-disabled="true">📸 Take selfie<input id="f" type="file" accept="image/*" capture="user" hidden></label>
+    </div>
+
+    <p id="msg"></p>
+    <div id="dl"></div>
+    <div id="grid"></div>
+  </div>
+</main>
+<script>
+const ready = {{ready}};
+document.getElementById(ready ? 'flow' : 'notready').classList.remove('hidden');
+agree.onchange = () => snap.setAttribute('aria-disabled', !agree.checked);
+f.onchange = async () => {
+  if (!f.files[0]) return;
+  msg.textContent = 'Looking for you…'; grid.innerHTML = ''; dl.innerHTML = '';
+  const fd = new FormData(); fd.append('selfie', f.files[0]); fd.append('consent', 'yes');
+  f.value = '';
+  try {
+    const r = await fetch('/search', {method: 'POST', body: fd}); const j = await r.json();
+    if (!r.ok) { msg.textContent = j.detail; return; }
+    msg.textContent = j.count ? `Found ${j.count} photo${j.count > 1 ? 's' : ''} of you!` : 'No matches yet. Try a brighter, front-facing selfie.';
+    if (j.count) dl.innerHTML = `<a class="btn secondary" href="/download/${j.token}">Download all (ZIP) →</a>`;
+    for (let i = 0; i < j.count; i++) { const im = new Image(); im.loading = 'lazy'; im.alt = 'Your photo'; im.src = `/preview/${j.token}/${i}`; grid.append(im); }
+  } catch { msg.textContent = "Couldn't reach the photographer's laptop. Are you on the event Wi-Fi?"; }
+};
+</script>
+</body>
+</html>

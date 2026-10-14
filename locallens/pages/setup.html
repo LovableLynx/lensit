@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Event setup · LocalLens</title>
+<style>
+:root{--navy:#04124c;--orange:#f87a1b;--orange-wash:#fff3ec;--cream:#fef7f3;--ink:#222;--muted:#656a76;--line:#e4e5e8;--green:#096;--white:#fff;--blue-light:#eaf0ff}
+*{box-sizing:border-box}
+body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--cream);color:var(--ink)}
+main{max-width:760px;margin:auto;padding:24px 16px 48px}
+.brand{font-weight:800;color:var(--navy);letter-spacing:-.02em;font-size:1.2rem}
+.brand span{color:var(--orange)}
+.eyebrow{display:inline-block;font-size:.8rem;font-weight:600;color:var(--orange);background:var(--orange-wash);padding:6px 12px;border-radius:999px;margin-top:24px}
+h1{font-size:2rem;line-height:1.1;color:var(--navy);margin:12px 0 8px;letter-spacing:-.03em}
+p{color:var(--muted);line-height:1.5}
+.steps{display:flex;gap:8px;margin:20px 0}
+.steps div{flex:1;padding:10px;border-radius:999px;text-align:center;font-size:.85rem;font-weight:700;background:var(--white);border:1px solid var(--line);color:var(--muted)}
+.steps div.on{background:var(--navy);color:var(--white);border-color:var(--navy)}
+.card{background:var(--white);border:1px solid var(--line);border-radius:24px;padding:24px}
+.num{font-weight:800;color:var(--orange);font-size:.85rem}
+h2{margin:4px 0 12px;color:var(--navy);font-size:1.3rem}
+label{display:block;font-weight:600;margin:16px 0 6px;color:var(--navy)}
+input,select{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:14px;font-size:1rem;font-family:inherit}
+.hint{font-size:.85rem;color:var(--muted);margin-top:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;background:var(--orange);color:var(--white);border:0;border-radius:999px;padding:14px 24px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:20px;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--navy);border:1px solid var(--line)}
+.bar{height:12px;background:var(--blue-light);border-radius:999px;overflow:hidden;margin-top:16px}
+.bar div{height:100%;width:0;background:var(--orange);transition:width .3s}
+.qr{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.qr img{width:200px;height:200px;border-radius:18px;border:1px solid var(--line)}
+.url{font-family:ui-monospace,Consolas,monospace;background:var(--blue-light);padding:8px 12px;border-radius:12px;color:var(--navy);word-break:break-all}
+.err{color:#b42318;font-weight:600}
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+.stats span{background:var(--orange-wash);color:var(--navy);padding:6px 12px;border-radius:999px;font-weight:600;font-size:.9rem}
+.hidden{display:none}
+@media print{.noprint{display:none}.card{border:0}}
+</style>
+</head>
+<body>
+<main>
+  <div class="brand noprint">Local<span>Lens</span></div>
+  <div class="noprint">
+    <span class="eyebrow">Photographer setup · runs only on this laptop</span>
+    <h1>Load. Share. Deliver.</h1>
+    <p>Three steps to let guests find their own photos. No account, no cloud, no monthly fee.</p>
+    <div class="steps"><div id="s1" class="on">01 Load</div><div id="s2">02 Index</div><div id="s3">03 Share</div></div>
+  </div>
+
+  <form class="card" id="step1">
+    <div class="num">01</div>
+    <h2>Load your event</h2>
+    <label for="event_name">Event name</label>
+    <input id="event_name" name="event_name" required placeholder="Tolu &amp; Femi's Wedding">
+    <label for="folder">Photo folder on this laptop</label>
+    <input id="folder" name="folder" required placeholder="C:\Users\you\Pictures\Wedding">
+    <div class="hint">Tip: open the folder in File Explorer, click the address bar and copy the path.</div>
+    <label for="hours">Delete guests' face data after</label>
+    <select id="hours" name="hours">
+      <option value="24">24 hours</option>
+      <option value="72" selected>3 days</option>
+      <option value="168">7 days</option>
+    </select>
+    <div class="hint">Your original photos are never touched. Only the face index is deleted.</div>
+    <p class="err" id="err1"></p>
+    <button class="btn">Start indexing →</button>
+  </form>
+
+  <div class="card hidden" id="step2">
+    <div class="num">02</div>
+    <h2>Finding faces…</h2>
+    <p id="prog">Starting up…</p>
+    <div class="bar"><div id="fill"></div></div>
+    <p class="hint">Everything runs on this laptop. You can stay offline.</p>
+  </div>
+
+  <div class="card hidden" id="step3">
+    <div class="num noprint">03</div>
+    <h2 id="evname">Share with guests</h2>
+    <div class="qr">
+      <img src="/qr.png" alt="QR code for guests">
+      <div>
+        <p><strong>Guests:</strong> join this Wi-Fi, scan the code, take a selfie.</p>
+        <p class="url">{{guest_url}}</p>
+        <div class="stats" id="stats"></div>
+      </div>
+    </div>
+    <div class="noprint">
+      <button class="btn" onclick="print()">Print QR poster</button>
+      <button class="btn ghost" id="purge">Delete face data now</button>
+      <button class="btn ghost" id="again">Load another event</button>
+    </div>
+  </div>
+</main>
+<script>
+const show = n => { [1, 2, 3].forEach(i => { document.getElementById('step' + i).classList.toggle('hidden', i !== n); document.getElementById('s' + i).classList.toggle('on', i <= n); }); };
+
+async function poll() {
+  const j = await (await fetch('/setup/status')).json();
+  if (j.state === 'running') {
+    show(2);
+    prog.textContent = j.total ? `${j.done} of ${j.total} photos` : 'Starting up…';
+    fill.style.width = j.total ? (100 * j.done / j.total) + '%' : '0';
+    setTimeout(poll, 700);
+  } else if (j.state === 'error') {
+    show(1); err1.textContent = j.error;
+  } else if (j.event) {
+    show(3);
+    evname.textContent = j.event;
+    const left = Math.max(0, Math.round((j.expires_at * 1000 - Date.now()) / 36e5));
+    stats.innerHTML = `<span>${j.photos} photos</span><span>${j.faces} faces</span><span>Auto-delete in ${left}h</span>`;
+  } else show(1);
+}
+
+step1.onsubmit = async e => {
+  e.preventDefault(); err1.textContent = '';
+  const r = await fetch('/setup', {method: 'POST', body: new FormData(step1)});
+  if (!r.ok) { err1.textContent = (await r.json()).detail; return; }
+  show(2); setTimeout(poll, 300);
+};
+purge.onclick = async () => { await fetch('/setup/purge', {method: 'POST'}); show(1); };
+again.onclick = () => show(1);
+poll();
+</script>
+</body>
+</html>
