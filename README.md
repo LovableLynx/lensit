@@ -20,3 +20,6 @@ python -m locallens serve        # prints the guest URL; QR at /qr.png
 python -m locallens purge        # delete face data now
 ```
 Guests must be on the same Wi-Fi/hotspot as the laptop.
+
+## Website
+Landing page: https://lovablelynx.github.io/locallens/ (source in `docs/`).
