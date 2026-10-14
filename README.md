@@ -12,7 +12,12 @@ Offline, local-first event photo finder. A photographer indexes a shoot on their
 | Face detection | YuNet (opencv_zoo) | Apache-2.0 |
 | Face recognition | SFace (opencv_zoo) | Apache-2.0 |
 
-## Run
+## Quick start (Windows, no coding)
+1. Install Python 3.11+ from python.org and tick **Add python.exe to PATH**.
+2. Download this repo as a ZIP and extract it.
+3. Double-click **`Start LocalLens.bat`**. The first run sets everything up (needs internet once), then the setup screen opens in your browser.
+
+## Run (command line)
 ```bash
 python -m venv .venv && .venv/Scripts/pip install -r requirements.txt   # Windows
 python -m locallens index "C:/path/to/event/photos" --expire-hours 72
