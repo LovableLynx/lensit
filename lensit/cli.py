@@ -2,7 +2,7 @@ import argparse
 
 
 def main():
-    p = argparse.ArgumentParser(prog="locallens", description="Offline event photo finder")
+    p = argparse.ArgumentParser(prog="lensit", description="Offline event photo finder")
     sub = p.add_subparsers(dest="cmd", required=True)
     i = sub.add_parser("index", help="index a folder of event photos")
     i.add_argument("folder")
@@ -20,7 +20,7 @@ def main():
         purge()
     else:
         import os
-        os.environ["LOCALLENS_PORT"] = str(a.port)
+        os.environ["LENSIT_PORT"] = str(a.port)
         import uvicorn
         import qrcode
         from .server import app, guest_url

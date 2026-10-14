@@ -17,7 +17,7 @@ from .faces import FaceEngine
 from .index import EventIndex, build_index, purge
 
 SESSION_TTL = 30 * 60  # guest results live 30 min, in memory only
-PORT = int(os.environ.get("LOCALLENS_PORT", 8000))
+PORT = int(os.environ.get("LENSIT_PORT", 8000))
 PAGES = Path(__file__).resolve().parent / "pages"
 WATERMARK = "PREVIEW"
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Try LocalLens in your browser</title>
+<title>Try Lens It in your browser</title>
 <meta name="description" content="Find yourself in your own photos with a selfie. Face matching runs entirely in your browser, so nothing is uploaded.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -51,13 +51,13 @@ h1{font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--navy);letter-spac
 </style>
 </head>
 <body>
-<header><div class="wrap"><a class="logo" href="./">Local<span>Lens</span></a><a class="back" href="./">← Back to site</a></div></header>
+<header><div class="wrap"><a class="logo" href="./">Lens<span> It</span></a><a class="back" href="./">← Back to site</a></div></header>
 
 <main class="wrap">
   <div style="padding-top:36px">
     <span class="eyebrow">Try it yourself · real face matching</span>
     <h1>Find yourself in your own photos.</h1>
-    <p class="lead">Add some photos from a party or trip, then take a selfie. LocalLens finds every photo you're in using the same open-source models as the app, running <strong>inside your browser</strong>.</p>
+    <p class="lead">Add some photos from a party or trip, then take a selfie. Lens It finds every photo you're in using the same open-source models as the app, running <strong>inside your browser</strong>.</p>
     <div class="privacy"><span>Nothing is uploaded</span><span>Works offline once loaded</span><span>Close the tab and it's gone</span></div>
   </div>
 
@@ -85,7 +85,7 @@ h1{font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--navy);letter-spac
     <div class="result" id="result"></div>
   </section>
 
-  <p class="note">How it works: <strong>YuNet</strong> finds faces and <strong>SFace</strong> turns each one into 128 numbers. Faces are compared by cosine similarity (a match is ≥ 0.363, OpenCV's recommended threshold). Both models are Apache-2.0, from <a href="https://github.com/opencv/opencv_zoo">opencv_zoo</a>, and run with ONNX Runtime Web. Results can include misses, especially for side profiles, sunglasses or dark photos. <a href="https://github.com/LovableLynx/locallens">Source code</a>.</p>
+  <p class="note">How it works: <strong>YuNet</strong> finds faces and <strong>SFace</strong> turns each one into 128 numbers. Faces are compared by cosine similarity (a match is ≥ 0.363, OpenCV's recommended threshold). Both models are Apache-2.0, from <a href="https://github.com/opencv/opencv_zoo">opencv_zoo</a>, and run with ONNX Runtime Web. Results can include misses, especially for side profiles, sunglasses or dark photos. <a href="https://github.com/LovableLynx/lensit">Source code</a>.</p>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/ort.min.js" integrity="sha384-4uQjzVxVRlLf2zq2sqRNKh3IzetqQzu15fI6xgLQzhXYGJMtTZc/fvdszanED0Zp" crossorigin="anonymous"></script>

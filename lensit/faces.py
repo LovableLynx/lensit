@@ -1,12 +1,16 @@
 """Face detection (YuNet) and recognition (SFace) via OpenCV. Both models are Apache-2.0 (opencv_zoo)."""
 import hashlib
+import sys
 import urllib.request
 from pathlib import Path
 
 import cv2
 import numpy as np
 
-MODELS_DIR = Path(__file__).resolve().parent.parent / "models"
+if getattr(sys, "frozen", False):  # packaged .exe: models are bundled inside it
+    MODELS_DIR = Path(sys._MEIPASS) / "models"
+else:
+    MODELS_DIR = Path(__file__).resolve().parent.parent / "models"
 # Pinned to exact upstream commits and verified by SHA-256, so a tampered download is refused.
 MODELS = {
     "yunet.onnx": (

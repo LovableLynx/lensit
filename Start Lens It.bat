@@ -1,5 +1,5 @@
 @echo off
-title LocalLens
+title Lens It
 cd /d "%~dp0"
 where python >nul 2>nul
 if errorlevel 1 (
@@ -14,18 +14,18 @@ if errorlevel 1 (
   exit /b
 )
 if not exist .venv (
-  echo  First run: setting up LocalLens. This needs internet once and takes a few minutes...
+  echo  First run: setting up Lens It. This needs internet once and takes a few minutes...
   python -m venv .venv || goto fail
   .venv\Scripts\pip install -q --require-hashes --only-binary=:all: -r requirements.txt || goto fail
-  .venv\Scripts\python -c "from locallens.faces import download_models; download_models()" || goto fail
-  echo  Setup complete. From now on LocalLens works offline.
+  .venv\Scripts\python -c "from lensit.faces import download_models; download_models()" || goto fail
+  echo  Setup complete. From now on Lens It works offline.
 )
 echo.
-echo  Starting LocalLens... your browser will open the setup screen.
-echo  Keep this window open during the event. Close it to stop LocalLens.
+echo  Starting Lens It... your browser will open the setup screen.
+echo  Keep this window open during the event. Close it to stop Lens It.
 echo.
 start "" cmd /c "timeout /t 10 >nul & start http://localhost:8000/setup"
-.venv\Scripts\python -m locallens serve
+.venv\Scripts\python -m lensit serve
 pause
 exit /b
 :fail

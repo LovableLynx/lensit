@@ -1,6 +1,8 @@
 """Build and query the local face index for one event."""
 import json
+import os
 import shutil
+import sys
 import time
 from pathlib import Path
 
@@ -9,7 +11,10 @@ import numpy as np
 
 from .faces import FaceEngine, MATCH_THRESHOLD
 
-DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+if getattr(sys, "frozen", False):  # packaged .exe: keep face data in the user's app-data folder
+    DATA_DIR = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "LensIt" / "data"
+else:
+    DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 EXTS = {".jpg", ".jpeg", ".png", ".webp"}
 
 
