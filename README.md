@@ -28,3 +28,6 @@ Guests must be on the same Wi-Fi/hotspot as the laptop.
 
 ## Website
 Landing page: https://lovablelynx.github.io/locallens/ (source in `docs/`).
+
+## License
+Code: MIT. Face models: Apache-2.0 (see opencv_zoo).
