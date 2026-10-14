@@ -1,24 +1,13 @@
 # Security
 
-## How LocalLens protects its installer
+## Download safely
 
-| Risk | Protection |
-|---|---|
-| Tampered Python packages | `requirements.txt` pins every package, including dependencies, with SHA-256 hashes. The launcher installs with `--require-hashes`, so pip refuses any file that doesn't match. |
-| Tampered face models | Models are downloaded from an exact upstream commit and checked against a SHA-256 hash before use. They are re-checked on every start. |
-| Tampered download ZIP | Each release lists the SHA-256 checksum of its ZIP. Check it before running (see below). |
-| Remote code at runtime | The launcher runs only files inside the folder. LocalLens never downloads or runs scripts from the internet. |
-| Hijacked website | The site is static and hosted on GitHub Pages. Download links point only to `github.com/LovableLynx/locallens`. |
+Only download LocalLens from the official sources:
 
-## Verify your download (Windows)
+- Website: https://lovablelynx.github.io/locallens/
+- Code: https://github.com/LovableLynx/locallens
 
-Open PowerShell in your Downloads folder and run:
-
-```powershell
-Get-FileHash .\locallens-*.zip -Algorithm SHA256
-```
-
-Compare the result with the checksum on the [Releases page](https://github.com/LovableLynx/locallens/releases). If it doesn't match, **don't run it**. Report it to us instead.
+LocalLens checks the integrity of its packages and AI models during setup and refuses anything that doesn't match. If setup reports a failed check, don't continue. Delete the folder and download it again from the links above.
 
 ## Reporting a problem
 
