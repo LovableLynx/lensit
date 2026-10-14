@@ -16,7 +16,7 @@ if errorlevel 1 (
 if not exist .venv (
   echo  First run: setting up LocalLens. This needs internet once and takes a few minutes...
   python -m venv .venv || goto fail
-  .venv\Scripts\pip install -q -r requirements.txt || goto fail
+  .venv\Scripts\pip install -q --require-hashes --only-binary=:all: -r requirements.txt || goto fail
   .venv\Scripts\python -c "from locallens.faces import download_models; download_models()" || goto fail
   echo  Setup complete. From now on LocalLens works offline.
 )

@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Try LocalLens in your browser</title>
+<meta name="description" content="Find yourself in your own photos with a selfie. Face matching runs entirely in your browser, so nothing is uploaded.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#04124c;--orange:#f87a1b;--orange-light:#ffb37d;--orange-wash:#fff3ec;--cream:#fef7f3;--ink:#222;--muted:#656a76;--line:#e4e5e8;--green:#096;--blue-light:#eaf0ff;--white:#fff;--red:#b42318}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Plus Jakarta Sans",ui-sans-serif,system-ui,sans-serif;background:var(--cream);color:var(--ink);line-height:1.5}
+.wrap{max-width:1000px;margin:auto;padding:0 16px}
+header{background:rgba(255,255,255,.9);border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{font-weight:800;font-size:1.25rem;color:var(--navy);text-decoration:none;letter-spacing:-.03em}.logo span{color:var(--orange)}
+header a.back{color:var(--muted);font-weight:600;text-decoration:none}
+.eyebrow{display:inline-block;font-size:.82rem;font-weight:700;color:var(--orange);background:var(--orange-wash);padding:6px 14px;border-radius:999px}
+h1{font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--navy);letter-spacing:-.03em;margin:16px 0 10px}
+.lead{color:var(--muted);font-size:1.05rem;max-width:640px;margin:0}
+.privacy{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0 0}
+.privacy span{background:var(--white);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:600;font-size:.88rem;color:var(--navy)}
+.privacy span::before{content:"✓ ";color:var(--green)}
+.card{background:var(--white);border:1px solid var(--line);border-radius:24px;padding:24px;margin-top:20px}
+.card.off{opacity:.5;pointer-events:none}
+.head{display:flex;gap:14px;align-items:center}
+.num{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--orange);color:#fff;font-weight:800;flex:none}
+.card h2{margin:0;color:var(--navy);font-size:1.25rem;letter-spacing:-.02em}
+.card p.sub{margin:4px 0 0;color:var(--muted);font-size:.92rem}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:13px 22px;font-weight:700;border:0;font-size:1rem;cursor:pointer;font-family:inherit;background:var(--orange);color:#fff;margin-top:16px}
+.btn.navy{background:var(--navy)}
+.btn input{display:none}
+.bar{height:10px;background:var(--blue-light);border-radius:999px;overflow:hidden;margin-top:14px}
+.bar div{height:100%;width:0;background:var(--orange);transition:width .2s}
+.msg{margin-top:10px;font-weight:600;color:var(--navy);min-height:1.5em}
+.msg.err{color:var(--red)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:16px}
+.tile{position:relative;border-radius:16px;overflow:hidden;background:var(--blue-light);aspect-ratio:1;transition:opacity .3s,transform .3s,box-shadow .3s}
+.tile img{width:100%;height:100%;object-fit:cover;display:block}
+.tile .badge{position:absolute;left:6px;bottom:6px;background:rgba(4,18,76,.8);color:#fff;font-size:.72rem;font-weight:700;padding:3px 8px;border-radius:999px}
+.tile.hit{box-shadow:0 0 0 3px var(--orange);transform:scale(1.02)}
+.tile.hit .badge{background:var(--orange)}
+.tile.dim{opacity:.25}
+.selfie{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.selfie img{width:96px;height:96px;object-fit:cover;border-radius:50%;border:3px solid var(--orange);display:none}
+.result{margin-top:16px;padding:16px;border-radius:18px;background:var(--navy);color:#fff;font-weight:700;display:none}
+.result small{display:block;color:var(--orange-light);font-weight:600}
+.note{font-size:.85rem;color:var(--muted);margin-top:28px;padding-bottom:48px}
+.note a{color:var(--navy)}
+</style>
+</head>
+<body>
+<header><div class="wrap"><a class="logo" href="./">Local<span>Lens</span></a><a class="back" href="./">← Back to site</a></div></header>
+
+<main class="wrap">
+  <div style="padding-top:36px">
+    <span class="eyebrow">Try it yourself · real face matching</span>
+    <h1>Find yourself in your own photos.</h1>
+    <p class="lead">Add some photos from a party or trip, then take a selfie. LocalLens finds every photo you're in using the same open-source models as the app, running <strong>inside your browser</strong>.</p>
+    <div class="privacy"><span>Nothing is uploaded</span><span>Works offline once loaded</span><span>Close the tab and it's gone</span></div>
+  </div>
+
+  <section class="card" id="c0">
+    <div class="head"><div class="num">0</div><div><h2>Load the AI models</h2><p class="sub">About 38 MB, downloaded once and checked against a SHA-256 fingerprint.</p></div></div>
+    <div class="bar"><div id="mbar"></div></div>
+    <div class="msg" id="mmsg">Starting…</div>
+  </section>
+
+  <section class="card off" id="c1">
+    <div class="head"><div class="num">1</div><div><h2>Add event photos</h2><p class="sub">Pick 5–50 photos with people in them. Group shots work.</p></div></div>
+    <label class="btn">📁 Choose photos<input type="file" id="photos" accept="image/*" multiple></label>
+    <div class="bar"><div id="pbar"></div></div>
+    <div class="msg" id="pmsg"></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section class="card off" id="c2">
+    <div class="head"><div class="num">2</div><div><h2>Take a selfie</h2><p class="sub">Face the camera in good light. Your selfie stays on this device.</p></div></div>
+    <div class="selfie">
+      <label class="btn navy">📸 Take or choose selfie<input type="file" id="selfie" accept="image/*" capture="user"></label>
+      <img id="sprev" alt="Your selfie">
+    </div>
+    <div class="msg" id="smsg"></div>
+    <div class="result" id="result"></div>
+  </section>
+
+  <p class="note">How it works: <strong>YuNet</strong> finds faces and <strong>SFace</strong> turns each one into 128 numbers. Faces are compared by cosine similarity (a match is ≥ 0.363, OpenCV's recommended threshold). Both models are Apache-2.0, from <a href="https://github.com/opencv/opencv_zoo">opencv_zoo</a>, and run with ONNX Runtime Web. Results can include misses, especially for side profiles, sunglasses or dark photos. <a href="https://github.com/LovableLynx/locallens">Source code</a>.</p>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/ort.min.js" integrity="sha384-4uQjzVxVRlLf2zq2sqRNKh3IzetqQzu15fI6xgLQzhXYGJMtTZc/fvdszanED0Zp" crossorigin="anonymous"></script>
+<script>
+const $ = id => document.getElementById(id);
+const MODELS = {
+  yunet: {url: 'models/yunet.onnx', sha: '8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4'},
+  sface: {url: 'models/sface.onnx', sha: '0ba9fbfa01b5270c96627c4ef784da859931e02f04419c829e83484087c34e79'},
+};
+const IN = 640, MAX_SIDE = 1280, SCORE = 0.8, NMS = 0.3, MATCH = 0.363;
+// Reference landmark positions for a 112x112 aligned face (from OpenCV's FaceRecognizerSF).
+const DST = [[38.2946, 51.6963], [73.5318, 51.5014], [56.0252, 71.7366], [41.5493, 92.3655], [70.7299, 92.2041]];
+let det, rec;
+const index = []; // {tile, embeddings: Float32Array[]}
+
+ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/';
+ort.env.wasm.numThreads = 1;
+ort.env.logLevel = 'error'; // SFace's old-style graph triggers harmless warnings
+
+const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+
+async function fetchModel(m, onBytes) {
+  const r = await fetch(m.url);
+  if (!r.ok) throw new Error('Could not download ' + m.url);
+  const reader = r.body.getReader(), parts = [];
+  for (;;) { const {done, value} = await reader.read(); if (done) break; parts.push(value); onBytes(value.length); }
+  const buf = await new Blob(parts).arrayBuffer();
+  if (hex(await crypto.subtle.digest('SHA-256', buf)) !== m.sha) throw new Error(m.url + ' failed its integrity check, so it was refused.');
+  return buf;
+}
+
+async function loadModels() {
+  const total = 38.5e6; let got = 0;
+  const tick = n => { got += n; $('mbar').style.width = Math.min(100, 100 * got / total) + '%'; $('mmsg').textContent = `Downloading… ${(got / 1e6).toFixed(1)} MB`; };
+  try {
+    const [y, s] = await Promise.all([fetchModel(MODELS.yunet, tick), fetchModel(MODELS.sface, tick)]);
+    $('mmsg').textContent = 'Verified ✓ Starting the models…';
+    det = await ort.InferenceSession.create(y, {executionProviders: ['wasm']});
+    rec = await ort.InferenceSession.create(s, {executionProviders: ['wasm']});
+    $('mbar').style.width = '100%';
+    $('mmsg').textContent = '✓ Models ready and verified. You can turn off your internet now if you like.';
+    $('c1').classList.remove('off');
+  } catch (e) { $('mmsg').textContent = e.message; $('mmsg').classList.add('err'); }
+}
+
+/* ---------- image helpers ---------- */
+async function toCanvas(file) {
+  const bmp = await createImageBitmap(file, {imageOrientation: 'from-image'});
+  const s = Math.min(1, MAX_SIDE / Math.max(bmp.width, bmp.height));
+  const c = document.createElement('canvas');
+  c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
+  c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+  bmp.close();
+  return c;
+}
+
+function iou(a, b) {
+  const ix = Math.max(0, Math.min(a[0] + a[2], b[0] + b[2]) - Math.max(a[0], b[0]));
+  const iy = Math.max(0, Math.min(a[1] + a[3], b[1] + b[3]) - Math.max(a[1], b[1]));
+  const i = ix * iy; return i / (a[2] * a[3] + b[2] * b[3] - i);
+}
+
+/* ---------- YuNet face detection ---------- */
+async function detect(src) {
+  const s = IN / Math.max(src.width, src.height);
+  const c = document.createElement('canvas'); c.width = c.height = IN;
+  const ctx = c.getContext('2d'); ctx.fillStyle = '#000'; ctx.fillRect(0, 0, IN, IN);
+  ctx.drawImage(src, 0, 0, Math.round(src.width * s), Math.round(src.height * s));
+  const px = ctx.getImageData(0, 0, IN, IN).data, n = IN * IN, x = new Float32Array(3 * n);
+  for (let i = 0; i < n; i++) { x[i] = px[4 * i + 2]; x[n + i] = px[4 * i + 1]; x[2 * n + i] = px[4 * i]; } // BGR planes
+  const out = await det.run({input: new ort.Tensor('float32', x, [1, 3, IN, IN])});
+  const faces = [];
+  for (const st of [8, 16, 32]) {
+    const cols = IN / st, cls = out['cls_' + st].data, obj = out['obj_' + st].data, bb = out['bbox_' + st].data, kp = out['kps_' + st].data;
+    for (let i = 0; i < cls.length; i++) {
+      const score = Math.sqrt(Math.min(1, Math.max(0, cls[i])) * Math.min(1, Math.max(0, obj[i])));
+      if (score < SCORE) continue;
+      const r = Math.floor(i / cols), col = i % cols;
+      const cx = (col + bb[4 * i]) * st, cy = (r + bb[4 * i + 1]) * st, w = Math.exp(bb[4 * i + 2]) * st, h = Math.exp(bb[4 * i + 3]) * st;
+      const lm = [];
+      for (let k = 0; k < 5; k++) lm.push([(kp[10 * i + 2 * k] + col) * st / s, (kp[10 * i + 2 * k + 1] + r) * st / s]);
+      faces.push({score, box: [(cx - w / 2) / s, (cy - h / 2) / s, w / s, h / s], lm});
+    }
+  }
+  faces.sort((a, b) => b.score - a.score);
+  const keep = [];
+  for (const f of faces) if (keep.every(k => iou(f.box, k.box) < NMS)) keep.push(f);
+  return keep;
+}
+
+/* ---------- SFace embedding ---------- */
+function similarity(src) { // least-squares similarity transform src -> DST
+  const ms = [0, 0], md = [0, 0];
+  for (let i = 0; i < 5; i++) { ms[0] += src[i][0] / 5; ms[1] += src[i][1] / 5; md[0] += DST[i][0] / 5; md[1] += DST[i][1] / 5; }
+  let num = 0, a = 0, b = 0;
+  for (let i = 0; i < 5; i++) {
+    const px = src[i][0] - ms[0], py = src[i][1] - ms[1], qx = DST[i][0] - md[0], qy = DST[i][1] - md[1];
+    num += px * px + py * py; a += px * qx + py * qy; b += px * qy - py * qx;
+  }
+  a /= num; b /= num;
+  return [a, b, md[0] - (a * ms[0] - b * ms[1]), md[1] - (b * ms[0] + a * ms[1])];
+}
+
+async function embed(src, lm) {
+  const [a, b, tx, ty] = similarity(lm);
+  const c = document.createElement('canvas'); c.width = c.height = 112;
+  const ctx = c.getContext('2d');
+  ctx.setTransform(a, b, -b, a, tx, ty);
+  ctx.drawImage(src, 0, 0);
+  const px = ctx.getImageData(0, 0, 112, 112).data, n = 112 * 112, x = new Float32Array(3 * n);
+  for (let i = 0; i < n; i++) { x[i] = px[4 * i]; x[n + i] = px[4 * i + 1]; x[2 * n + i] = px[4 * i + 2]; } // RGB planes
+  const f = (await rec.run({data: new ort.Tensor('float32', x, [1, 3, 112, 112])})).fc1.data;
+  let norm = 0; for (const v of f) norm += v * v; norm = Math.sqrt(norm);
+  return Float32Array.from(f, v => v / norm);
+}
+
+const cosine = (u, v) => { let s = 0; for (let i = 0; i < u.length; i++) s += u[i] * v[i]; return s; };
+
+/* ---------- step 1: index photos ---------- */
+$('photos').onchange = async e => {
+  const files = [...e.target.files]; if (!files.length) return;
+  $('c2').classList.add('off'); $('pmsg').classList.remove('err');
+  let faces = 0;
+  for (let i = 0; i < files.length; i++) {
+    $('pmsg').textContent = `Finding faces… photo ${i + 1} of ${files.length}`;
+    $('pbar').style.width = (100 * i / files.length) + '%';
+    try {
+      const c = await toCanvas(files[i]);
+      const found = await detect(c);
+      const embeddings = [];
+      for (const f of found) embeddings.push(await embed(c, f.lm));
+      faces += embeddings.length;
+      const tile = document.createElement('div'); tile.className = 'tile';
+      const img = new Image(); img.src = c.toDataURL('image/jpeg', .7); img.alt = files[i].name;
+      tile.append(img);
+      const badge = document.createElement('span'); badge.className = 'badge'; badge.textContent = `${embeddings.length} face${embeddings.length === 1 ? '' : 's'}`;
+      tile.append(badge);
+      $('grid').append(tile);
+      index.push({tile, badge, embeddings});
+    } catch { /* skip unreadable files */ }
+  }
+  $('pbar').style.width = '100%';
+  $('pmsg').textContent = `✓ ${index.length} photos, ${faces} faces found. Add more photos, or take a selfie below.`;
+  if (faces) $('c2').classList.remove('off');
+  e.target.value = '';
+};
+
+/* ---------- step 2: selfie search ---------- */
+$('selfie').onchange = async e => {
+  const file = e.target.files[0]; if (!file) return;
+  e.target.value = '';
+  $('smsg').classList.remove('err'); $('smsg').textContent = 'Looking for you…'; $('result').style.display = 'none';
+  const c = await toCanvas(file);
+  $('sprev').src = c.toDataURL('image/jpeg', .7); $('sprev').style.display = 'block';
+  const found = await detect(c);
+  if (!found.length) { $('smsg').textContent = 'No face found. Try again facing the camera in better light.'; $('smsg').classList.add('err'); return; }
+  const biggest = found.reduce((a, b) => a.box[2] * a.box[3] > b.box[2] * b.box[3] ? a : b);
+  const me = await embed(c, biggest.lm);
+  let hits = 0;
+  for (const p of index) {
+    const best = p.embeddings.reduce((m, v) => Math.max(m, cosine(me, v)), -1);
+    const hit = best >= MATCH; hits += hit;
+    p.tile.classList.toggle('hit', hit); p.tile.classList.toggle('dim', !hit);
+    p.badge.textContent = hit ? `Match ${(best * 100).toFixed(0)}%` : `${p.embeddings.length} face${p.embeddings.length === 1 ? '' : 's'}`;
+  }
+  $('smsg').textContent = '';
+  $('result').style.display = 'block';
+  $('result').innerHTML = hits
+    ? `<small>Done, entirely on this device</small>Found you in ${hits} of ${index.length} photos 🎉`
+    : `<small>Done, entirely on this device</small>No matches. Try a brighter, front-facing selfie.`;
+  $('c1').scrollIntoView({behavior: 'smooth'});
+};
+
+loadModels();
+</script>
+</body>
+</html>

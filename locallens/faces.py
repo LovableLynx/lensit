@@ -1,4 +1,5 @@
 """Face detection (YuNet) and recognition (SFace) via OpenCV. Both models are Apache-2.0 (opencv_zoo)."""
+import hashlib
 import urllib.request
 from pathlib import Path
 
@@ -6,22 +7,41 @@ import cv2
 import numpy as np
 
 MODELS_DIR = Path(__file__).resolve().parent.parent / "models"
+# Pinned to exact upstream commits and verified by SHA-256, so a tampered download is refused.
 MODELS = {
-    "yunet.onnx": "https://github.com/opencv/opencv_zoo/raw/main/models/face_detection_yunet/face_detection_yunet_2023mar.onnx",
-    "sface.onnx": "https://github.com/opencv/opencv_zoo/raw/main/models/face_recognition_sface/face_recognition_sface_2021dec.onnx",
+    "yunet.onnx": (
+        "https://github.com/opencv/opencv_zoo/raw/f12e12798e8314f7c074a6656816c048dcc95b7a/models/face_detection_yunet/face_detection_yunet_2023mar.onnx",
+        "8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4",
+    ),
+    "sface.onnx": (
+        "https://github.com/opencv/opencv_zoo/raw/ba91a3b91d00d76e86540d4013f944bd6b514e39/models/face_recognition_sface/face_recognition_sface_2021dec.onnx",
+        "0ba9fbfa01b5270c96627c4ef784da859931e02f04419c829e83484087c34e79",
+    ),
 }
 # Cosine-similarity threshold recommended by OpenCV for SFace.
 MATCH_THRESHOLD = 0.363
 MAX_SIDE = 1280  # downscale big camera photos; keeps an 8 GB laptop happy
 
 
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 def download_models():
+    """Download missing models and verify every model file's checksum before it is used."""
     MODELS_DIR.mkdir(exist_ok=True)
-    for name, url in MODELS.items():
+    for name, (url, sha) in MODELS.items():
         dest = MODELS_DIR / name
         if not dest.exists():
             print(f"Downloading {name} ...")
-            urllib.request.urlretrieve(url, dest)
+            tmp = dest.with_suffix(".part")
+            urllib.request.urlretrieve(url, tmp)
+            if _sha256(tmp) != sha:
+                tmp.unlink()
+                raise RuntimeError(f"{name} failed its checksum - download refused.")
+            tmp.rename(dest)
+        elif _sha256(dest) != sha:
+            raise RuntimeError(f"{name} has been modified - delete the models folder and run setup again.")
 
 
 class FaceEngine:
