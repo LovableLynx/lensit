@@ -59,6 +59,9 @@ h1{font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--navy);letter-spac
 .lock{margin:12px 0 0;font-size:.88rem;font-weight:600;color:var(--muted)}
 .card:not(.off) .lock{display:none}
 @media (max-width:640px){.roles{grid-template-columns:1fr}}
+.agree{display:flex;gap:10px;align-items:flex-start;margin-top:16px;font-size:.92rem;color:var(--ink);cursor:pointer;line-height:1.45}
+.agree input{width:20px;height:20px;accent-color:var(--orange);margin-top:1px;flex:none}
+.btn[aria-disabled=true]{opacity:.4;pointer-events:none}
 .note{font-size:.85rem;color:var(--muted);margin-top:28px;padding-bottom:48px}
 .note a{color:var(--navy)}
 </style>
@@ -86,7 +89,8 @@ h1{font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--navy);letter-spac
 
   <section class="card off" id="c1">
     <div class="head"><div class="num">1</div><div><span class="role">You're the photographer</span><h2>Add event photos</h2><p class="sub">Select several photos at once (hold Ctrl on a laptop). Use 10–50 photos of people, ideally some with you in them and some without.</p></div></div>
-    <label class="btn">📁 Choose photos<input type="file" id="photos" accept="image/*" multiple></label>
+    <label class="agree"><input type="checkbox" id="agreeTry"> I have permission to use these photos, I'll only search with my own face, and I agree to the <a href="terms.html" target="_blank">Terms</a> and <a href="privacy.html" target="_blank">Privacy Policy</a>. Nothing leaves this device.</label>
+    <label class="btn" id="choose" aria-disabled="true">📁 Choose photos<input type="file" id="photos" accept="image/*" multiple disabled></label>
     <div class="bar"><div id="pbar"></div></div>
     <div class="msg" id="pmsg"></div>
     <div class="grid" id="grid"></div>
@@ -111,7 +115,7 @@ h1{font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--navy);letter-spac
     <div class="result" id="result"></div>
   </section>
 
-  <p class="note">How it works: <strong>YuNet</strong> finds faces and <strong>SFace</strong> turns each one into 128 numbers. Faces are compared by cosine similarity (a match is ≥ 0.363, OpenCV's recommended threshold). Both models are Apache-2.0, from <a href="https://github.com/opencv/opencv_zoo">opencv_zoo</a>, and run with ONNX Runtime Web. Results can include misses, especially for side profiles, sunglasses or dark photos. <a href="https://github.com/LovableLynx/lensit">Source code</a>.</p>
+  <p class="note">How it works: <strong>YuNet</strong> finds faces and <strong>SFace</strong> turns each one into 128 numbers. Faces are compared by cosine similarity (a match is ≥ 0.363, OpenCV's recommended threshold). Both models are Apache-2.0, from <a href="https://github.com/opencv/opencv_zoo">opencv_zoo</a>, and run with ONNX Runtime Web. Results can include misses, especially for side profiles, sunglasses or dark photos. <a href="https://github.com/LovableLynx/lensit">Source code</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · No cookies.</p>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/ort.min.js" integrity="sha384-4uQjzVxVRlLf2zq2sqRNKh3IzetqQzu15fI6xgLQzhXYGJMtTZc/fvdszanED0Zp" crossorigin="anonymous"></script>
@@ -338,6 +342,11 @@ async function search(c) {
 
 // Warn before a reload or close wipes the photos (nothing is stored, so they can't be restored).
 addEventListener('beforeunload', e => { if (index.length) { e.preventDefault(); e.returnValue = ''; } });
+
+$('agreeTry').onchange = e => {
+  $('photos').disabled = !e.target.checked;
+  $('choose').setAttribute('aria-disabled', !e.target.checked);
+};
 
 loadModels();
 </script>

@@ -33,6 +33,9 @@ input,select{width:100%;padding:12px 14px;border:1px solid var(--line);border-ra
 .err{color:#b42318;font-weight:600}
 .stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
 .stats span{background:var(--orange-wash);color:var(--navy);padding:6px 12px;border-radius:999px;font-weight:600;font-size:.9rem}
+.agree{display:flex;gap:10px;align-items:flex-start;margin-top:20px;font-weight:500;color:var(--ink);line-height:1.45;cursor:pointer}
+.agree input{width:20px;height:20px;accent-color:var(--orange);flex:none;margin-top:2px}
+.poster-note{font-size:.88rem;background:var(--orange-wash);border-radius:14px;padding:10px 12px;color:var(--navy)}
 .hidden{display:none}
 @media print{.noprint{display:none}.card{border:0}}
 </style>
@@ -62,6 +65,7 @@ input,select{width:100%;padding:12px 14px;border:1px solid var(--line);border-ra
       <option value="168">7 days</option>
     </select>
     <div class="hint">Your original photos are never touched. Only the face index is deleted.</div>
+    <label class="agree"><input type="checkbox" name="agree" required> I have the right to use these photos, I'll tell guests that face matching is optional, and I accept my responsibilities as the data controller under the Lens It <a href="https://lovablelynx.github.io/lensit/terms.html" target="_blank">Terms of Use</a>.</label>
     <p class="err" id="err1"></p>
     <button class="btn">Start indexing →</button>
   </form>
@@ -82,6 +86,7 @@ input,select{width:100%;padding:12px 14px;border:1px solid var(--line);border-ra
       <div>
         <p><strong>Guests:</strong> join this Wi-Fi, scan the code, take a selfie.</p>
         <p class="url">{{guest_url}}</p>
+        <p class="poster-note">Optional: find your photos with a selfie. Matched on the photographer's laptop over this Wi-Fi, never uploaded, and deleted after the event. Prefer not to? Just ask the photographer.</p>
         <div class="stats" id="stats"></div>
       </div>
     </div>

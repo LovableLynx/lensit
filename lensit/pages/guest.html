@@ -27,6 +27,9 @@ ul.ticks li::before{content:"✓ ";color:var(--green);font-weight:700}
 #msg{font-weight:600;color:var(--navy)}
 #grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:16px}
 #grid img{width:100%;border-radius:18px;display:block}
+.notice{margin-top:14px;background:var(--orange-wash);border-radius:16px;padding:10px 14px;font-size:.88rem}
+.notice summary{cursor:pointer;font-weight:700;color:var(--navy)}
+.notice p{margin:8px 0 0;color:var(--ink)}
 .hidden{display:none}
 </style>
 </head>
@@ -52,7 +55,11 @@ ul.ticks li::before{content:"✓ ";color:var(--green);font-weight:700}
         <li>It is never saved and never sent to the internet.</li>
         <li>All face data is deleted after the event.</li>
       </ul>
-      <label class="check"><input type="checkbox" id="agree"> I agree to my selfie being used only to find my photos at this event.</label>
+      <details class="notice"><summary>Read the privacy notice</summary>
+        <p>The photographer running this event is responsible for this data. Your selfie is turned into a face fingerprint (biometric data) only to find your photos. It's matched on the photographer's laptop over this local Wi-Fi, never saved and never sent to the internet. Your results are kept in memory for up to 30 minutes. The event's face data is deleted automatically after the event. No cookies or trackers are used.</p>
+        <p>This is optional. If you'd rather not use it, ask the photographer for your photos instead. To have the event's face data deleted early, ask the photographer.</p>
+      </details>
+      <label class="check"><input type="checkbox" id="agree"> I'm 18+ (or have a parent's permission), I'm searching only for myself, and I consent to my selfie being used to find my photos at this event.</label>
       <label class="btn" id="snap" aria-disabled="true">📸 Take selfie<input id="f" type="file" accept="image/*" capture="user" hidden></label>
     </div>
 

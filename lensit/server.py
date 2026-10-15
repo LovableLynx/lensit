@@ -89,8 +89,11 @@ def setup_page(request: Request):
 
 
 @app.post("/setup")
-def start_setup(request: Request, folder: str = Form(...), event_name: str = Form(...), hours: float = Form(72)):
+def start_setup(request: Request, folder: str = Form(...), event_name: str = Form(...), hours: float = Form(72),
+                agree: str = Form("")):
     require_laptop(request)
+    if not agree:
+        raise HTTPException(400, "Please confirm the photographer responsibilities first.")
     if job["state"] == "running":
         raise HTTPException(409, "Already indexing.")
 
