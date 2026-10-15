@@ -46,6 +46,14 @@ h1{font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--navy);letter-spac
 .selfie img{width:96px;height:96px;object-fit:cover;border-radius:50%;border:3px solid var(--orange);display:none}
 .result{margin-top:16px;padding:16px;border-radius:18px;background:var(--navy);color:#fff;font-weight:700;display:none}
 .result small{display:block;color:var(--orange-light);font-weight:600}
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+.roles div{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:14px 16px;font-size:.92rem;color:var(--muted)}
+.roles b{display:block;color:var(--navy);margin-bottom:4px}
+.role{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--orange);margin-bottom:2px}
+.role.guest{color:var(--green)}
+.lock{margin:12px 0 0;font-size:.88rem;font-weight:600;color:var(--muted)}
+.card:not(.off) .lock{display:none}
+@media (max-width:640px){.roles{grid-template-columns:1fr}}
 .note{font-size:.85rem;color:var(--muted);margin-top:28px;padding-bottom:48px}
 .note a{color:var(--navy)}
 </style>
@@ -58,17 +66,21 @@ h1{font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--navy);letter-spac
     <span class="eyebrow">Try it yourself · real face matching</span>
     <h1>Find yourself in your own photos.</h1>
     <p class="lead">Add some photos from a party or trip, then take a selfie. Lens It finds every photo you're in using the same open-source models as the app, running <strong>inside your browser</strong>.</p>
+    <div class="roles">
+      <div><b>📸 At a real event</b>The photographer loads the photos on their laptop. Guests join the laptop's Wi-Fi, scan a QR code and snap a selfie on their phones.</div>
+      <div><b>🧪 On this page</b>You play both roles in one browser: first the photographer (step 1), then the guest (step 2). The face matching is exactly the same.</div>
+    </div>
     <div class="privacy"><span>Nothing is uploaded</span><span>Works offline once loaded</span><span>Close the tab and it's gone</span></div>
   </div>
 
   <section class="card" id="c0">
-    <div class="head"><div class="num">0</div><div><h2>Load the AI models</h2><p class="sub">About 38 MB, downloaded once and checked against a SHA-256 fingerprint.</p></div></div>
+    <div class="head"><div class="num">0</div><div><span class="role">Setup · happens once</span><h2>Load the AI models</h2><p class="sub">About 38 MB, downloaded once and checked against a SHA-256 fingerprint.</p></div></div>
     <div class="bar"><div id="mbar"></div></div>
     <div class="msg" id="mmsg">Starting…</div>
   </section>
 
   <section class="card off" id="c1">
-    <div class="head"><div class="num">1</div><div><h2>Add event photos</h2><p class="sub">Pick 5–50 photos with people in them. Group shots work.</p></div></div>
+    <div class="head"><div class="num">1</div><div><span class="role">You're the photographer</span><h2>Add event photos</h2><p class="sub">Select several photos at once (hold Ctrl on a laptop). Use 10–50 photos of people, ideally some with you in them and some without.</p></div></div>
     <label class="btn">📁 Choose photos<input type="file" id="photos" accept="image/*" multiple></label>
     <div class="bar"><div id="pbar"></div></div>
     <div class="msg" id="pmsg"></div>
@@ -76,7 +88,8 @@ h1{font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--navy);letter-spac
   </section>
 
   <section class="card off" id="c2">
-    <div class="head"><div class="num">2</div><div><h2>Take a selfie</h2><p class="sub">Face the camera in good light. Your selfie stays on this device.</p></div></div>
+    <div class="head"><div class="num">2</div><div><span class="role guest">Now you're the guest</span><h2>Take a selfie</h2><p class="sub">Face the camera in good light. On a laptop, choose a clear photo of your face that isn't one of the event photos. Your selfie stays on this device.</p></div></div>
+    <p class="lock" id="lock">🔒 Unlocks after step 1 finds at least one face.</p>
     <div class="selfie">
       <label class="btn navy">📸 Take or choose selfie<input type="file" id="selfie" accept="image/*" capture="user"></label>
       <img id="sprev" alt="Your selfie">
