@@ -43,6 +43,11 @@ h1{font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--navy);letter-spac
 .tile.hit .badge{background:var(--orange)}
 .tile.dim{opacity:.25}
 .selfie{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.btn.ghost{background:var(--white);color:var(--navy);border:1px solid var(--line)}
+.cam{display:none;margin-top:16px}
+.cam.on{display:block}
+.cam video{width:100%;max-width:420px;border-radius:20px;background:#000;transform:scaleX(-1);display:block}
+.camrow{display:flex;gap:10px;flex-wrap:wrap}
 .selfie img{width:96px;height:96px;object-fit:cover;border-radius:50%;border:3px solid var(--orange);display:none}
 .result{margin-top:16px;padding:16px;border-radius:18px;background:var(--navy);color:#fff;font-weight:700;display:none}
 .result small{display:block;color:var(--orange-light);font-weight:600}
@@ -88,11 +93,19 @@ h1{font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--navy);letter-spac
   </section>
 
   <section class="card off" id="c2">
-    <div class="head"><div class="num">2</div><div><span class="role guest">Now you're the guest</span><h2>Take a selfie</h2><p class="sub">Face the camera in good light. On a laptop, choose a clear photo of your face that isn't one of the event photos. Your selfie stays on this device.</p></div></div>
+    <div class="head"><div class="num">2</div><div><span class="role guest">Now you're the guest</span><h2>Take a selfie</h2><p class="sub">Face the camera in good light. Use your webcam, or choose a clear photo of your face that isn't one of the event photos. Your selfie stays on this device.</p></div></div>
     <p class="lock" id="lock">🔒 Unlocks after step 1 finds at least one face.</p>
     <div class="selfie">
-      <label class="btn navy">📸 Take or choose selfie<input type="file" id="selfie" accept="image/*" capture="user"></label>
+      <button class="btn navy" id="camBtn" type="button">📸 Take a selfie</button>
+      <label class="btn ghost">🖼️ Choose a photo<input type="file" id="selfie" accept="image/*"></label>
       <img id="sprev" alt="Your selfie">
+    </div>
+    <div class="cam" id="cam">
+      <video id="video" playsinline muted></video>
+      <div class="camrow">
+        <button class="btn" id="snap" type="button">● Capture</button>
+        <button class="btn ghost" id="camCancel" type="button">Cancel</button>
+      </div>
     </div>
     <div class="msg" id="smsg"></div>
     <div class="result" id="result"></div>
@@ -250,8 +263,33 @@ $('photos').onchange = async e => {
 $('selfie').onchange = async e => {
   const file = e.target.files[0]; if (!file) return;
   e.target.value = '';
+  search(await toCanvas(file));
+};
+
+// Webcam selfie (laptops ignore the camera hint on file inputs, so use the camera directly).
+let stream = null;
+function stopCam() { if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; $('cam').classList.remove('on'); }
+$('camBtn').onclick = async () => {
+  $('smsg').classList.remove('err');
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: 'user', width: {ideal: 1280}}, audio: false});
+    $('video').srcObject = stream; await $('video').play();
+    $('cam').classList.add('on'); $('smsg').textContent = 'Look at the camera, then press Capture.';
+  } catch {
+    $('smsg').textContent = "Couldn't open the camera. Allow camera access, or use \"Choose a photo\" instead."; $('smsg').classList.add('err');
+  }
+};
+$('camCancel').onclick = () => { stopCam(); $('smsg').textContent = ''; };
+$('snap').onclick = () => {
+  const v = $('video'), c = document.createElement('canvas');
+  c.width = v.videoWidth; c.height = v.videoHeight;
+  c.getContext('2d').drawImage(v, 0, 0);
+  stopCam(); // the camera turns off immediately; the frame never leaves this page
+  search(c);
+};
+
+async function search(c) {
   $('smsg').classList.remove('err'); $('smsg').textContent = 'Looking for you…'; $('result').style.display = 'none';
-  const c = await toCanvas(file);
   $('sprev').src = c.toDataURL('image/jpeg', .7); $('sprev').style.display = 'block';
   const found = await detect(c);
   if (!found.length) { $('smsg').textContent = 'No face found. Try again facing the camera in better light.'; $('smsg').classList.add('err'); return; }
@@ -270,7 +308,7 @@ $('selfie').onchange = async e => {
     ? `<small>Done, entirely on this device</small>Found you in ${hits} of ${index.length} photos 🎉`
     : `<small>Done, entirely on this device</small>No matches. Try a brighter, front-facing selfie.`;
   $('c1').scrollIntoView({behavior: 'smooth'});
-};
+}
 
 loadModels();
 </script>
