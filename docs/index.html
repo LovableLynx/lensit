@@ -38,7 +38,7 @@ section{padding:96px 0}
 header{position:sticky;top:0;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);z-index:20}
 header .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
 .logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1.3rem;color:var(--navy);text-decoration:none;letter-spacing:-.03em}
-.logo span{color:var(--orange)}
+.logo .wmark span{color:var(--orange)}
 .logo svg{width:28px;height:28px}
 nav a{margin-left:26px;text-decoration:none;color:var(--muted);font-weight:600;font-size:.95rem}
 nav a:hover{color:var(--navy)}
@@ -173,6 +173,16 @@ tr:last-child td{border-bottom:0}
 .term .c{color:rgba(214,222,250,.5)}
 
 
+/* app screenshots */
+.shots{display:grid;grid-template-columns:1fr 1fr 260px;gap:20px;margin-top:40px;align-items:start}
+.shot{margin:0;background:var(--white);border:1px solid var(--line);border-radius:24px;padding:10px;box-shadow:0 20px 40px -24px rgba(4,18,76,.25)}
+.shot img{width:100%;height:auto;display:block;border-radius:16px}
+.shot figcaption{padding:12px 8px 6px;color:var(--muted);font-size:.9rem}
+.shot figcaption b{display:block;color:var(--navy)}
+.phone-shot{border-radius:32px;background:var(--navy);padding:8px}
+.phone-shot img{border-radius:26px}
+.phone-shot figcaption{color:rgba(255,255,255,.75)}.phone-shot figcaption b{color:#fff}
+
 /* install */
 .install{background:var(--cream)}
 .inst{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:36px}
@@ -211,6 +221,7 @@ footer .logo{color:#fff}
 .fbot{border-top:1px solid rgba(255,255,255,.12);margin-top:40px;padding-top:20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 
 @media (max-width:900px){
+  .shots{grid-template-columns:1fr}.phone-shot{max-width:320px;margin:auto}
   .inst{grid-template-columns:1fr}
   nav{display:none}
   .hero .wrap,.privacy .wrap,.calc{grid-template-columns:1fr}
@@ -236,8 +247,8 @@ footer .logo{color:#fff}
 
 <header>
   <div class="wrap">
-    <a class="logo" href="#"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="10" fill="#04124c"/><circle cx="16" cy="16" r="8" fill="none" stroke="#f87a1b" stroke-width="3"/><circle cx="16" cy="16" r="3" fill="#fff"/></svg>Lens<span> It</span></a>
-    <nav><a href="try.html">Try it</a><a href="#demo">Demo</a><a href="#how">How it works</a><a href="#earn">Earnings</a><a href="#privacy">Privacy</a><a href="#install">Install</a><a href="#faq">FAQ</a></nav>
+    <a class="logo" href="#"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="10" fill="#04124c"/><circle cx="16" cy="16" r="8" fill="none" stroke="#f87a1b" stroke-width="3"/><circle cx="16" cy="16" r="3" fill="#fff"/></svg><span class="wmark">Lens<span> It</span></span></a>
+    <nav><a href="try.html">Try it</a><a href="#app">The app</a><a href="#demo">Demo</a><a href="#how">How it works</a><a href="#earn">Earnings</a><a href="#privacy">Privacy</a><a href="#install">Install</a><a href="#faq">FAQ</a></nav>
     <a class="btn primary" href="#install">Get Lens It</a>
   </div>
 </header>
@@ -427,6 +438,21 @@ footer .logo{color:#fff}
       <div><span class="p">$</span> pip install -r requirements.txt</div>
       <div class="c"># start at the venue, then open localhost:8000/setup</div>
       <div><span class="p">$</span> python -m lensit serve</div>
+    </div>
+  </div>
+</section>
+
+<section id="app">
+  <div class="wrap">
+    <div class="center reveal">
+      <span class="eyebrow">Inside the app</span>
+      <h2>Simple for photographers. Effortless for guests.</h2>
+      <p class="lead">Real screenshots of the Lens It app running offline on a laptop.</p>
+    </div>
+    <div class="shots">
+      <figure class="shot reveal"><img src="img/app-setup.webp" alt="Lens It setup screen: event name, photo folder with Browse button, auto-delete choice and consent" loading="lazy" width="1280" height="1001"><figcaption><b>1 · Load</b> Name the event, browse to the photo folder, pick when face data is deleted.</figcaption></figure>
+      <figure class="shot reveal"><img src="img/app-share.webp" alt="Lens It share screen with a printable QR poster and event stats" loading="lazy" width="1280" height="1019"><figcaption><b>2 · Share</b> Print the QR poster. It includes the privacy notice for guests.</figcaption></figure>
+      <figure class="shot phone-shot reveal"><img src="img/app-guest.webp" alt="Lens It guest page on a phone: consent and take-a-selfie buttons" loading="lazy" width="780" height="1688"><figcaption><b>3 · Find</b> Guests consent, snap a selfie and download their photos.</figcaption></figure>
     </div>
   </div>
 </section>

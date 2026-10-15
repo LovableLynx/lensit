@@ -3,6 +3,8 @@ import io
 import os
 import secrets
 import socket
+import subprocess
+import sys
 import threading
 import time
 import zipfile
@@ -11,17 +13,20 @@ from pathlib import Path
 import qrcode
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse, Response, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from PIL import Image, ImageDraw, ImageFont
 
 from .faces import FaceEngine
-from .index import EventIndex, build_index, purge
+from .index import EXTS, EventIndex, build_index, purge
 
 SESSION_TTL = 30 * 60  # guest results live 30 min, in memory only
 PORT = int(os.environ.get("LENSIT_PORT", 8000))
 PAGES = Path(__file__).resolve().parent / "pages"
+STATIC = Path(__file__).resolve().parent / "static"
 WATERMARK = "PREVIEW"
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory=STATIC), name="static")
 engine = FaceEngine()
 index: EventIndex | None = EventIndex() if EventIndex.exists() else None
 sessions: dict[str, tuple[float, list[int]]] = {}  # token -> (created, photo ids)
@@ -101,7 +106,7 @@ def start_setup(request: Request, folder: str = Form(...), event_name: str = For
         global index
         job.update(state="running", done=0, total=0, error="")
         try:
-            build_index(folder, hours, event_name,
+            build_index(folder.strip().strip('"'), hours, event_name.strip(),
                         progress=lambda d, t: job.update(done=d, total=t))
             sessions.clear()
             index = EventIndex()
@@ -111,6 +116,38 @@ def start_setup(request: Request, folder: str = Form(...), event_name: str = For
 
     threading.Thread(target=run, daemon=True).start()
     return {"ok": True}
+
+
+# Native folder picker (Windows). Runs on the laptop itself, so it's only reachable from the laptop.
+FOLDER_DIALOG = (
+    "Add-Type -AssemblyName System.Windows.Forms;"
+    "$o = New-Object System.Windows.Forms.Form -Property @{TopMost=$true};"
+    "$f = New-Object System.Windows.Forms.FolderBrowserDialog;"
+    "$f.Description = 'Choose the folder with your event photos';"
+    "if ($f.ShowDialog($o) -eq 'OK') { [Console]::Out.Write($f.SelectedPath) }"
+)
+
+
+@app.post("/setup/browse")
+def browse_folder(request: Request):
+    require_laptop(request)
+    if sys.platform != "win32":
+        return {"error": "Folder picker is only available on Windows. Paste the folder path instead."}
+    out = subprocess.run(["powershell", "-NoProfile", "-STA", "-Command", FOLDER_DIALOG],
+                         capture_output=True, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
+    return {"path": out.stdout.strip()}
+
+
+@app.get("/setup/folder")
+def check_folder(request: Request, path: str):
+    require_laptop(request)
+    folder = Path(path.strip().strip('"'))
+    if not folder.is_dir():
+        return {"ok": False, "error": "That folder doesn't exist. Check the path or use Browse."}
+    count = sum(1 for f in folder.rglob("*") if f.suffix.lower() in EXTS)
+    if not count:
+        return {"ok": False, "error": "No photos (JPG, PNG or WebP) found in that folder."}
+    return {"ok": True, "count": count}
 
 
 @app.get("/setup/status")
@@ -173,11 +210,19 @@ def preview(token: str, i: int):
         raise HTTPException(404)
     img = Image.open(index.path(ids[i])).convert("RGB")
     img.thumbnail((800, 800))
-    draw = ImageDraw.Draw(img, "RGBA")
-    font = ImageFont.load_default(size=max(24, img.width // 10))
+    # Diagonal tiled watermark, so it survives any square crop in the guest's grid.
     w, h = img.size
-    for y in range(0, h, h // 3 or 1):
-        draw.text((w // 10, y + h // 8), WATERMARK, fill=(255, 255, 255, 110), font=font)
+    size = max(18, min(w, h) // 9)
+    font = ImageFont.load_default(size=size)
+    tile = Image.new("RGBA", (w * 2, h * 2), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(tile)
+    step_x, step_y = size * 7, size * 3
+    for row, y in enumerate(range(0, h * 2, step_y)):
+        for x in range(-(row % 2) * step_x // 2, w * 2, step_x):
+            draw.text((x, y), WATERMARK, fill=(255, 255, 255, 95), font=font)
+    tile = tile.rotate(30, resample=Image.BICUBIC)
+    left, top = (tile.width - w) // 2, (tile.height - h) // 2
+    img.paste(tile.crop((left, top, left + w, top + h)), (0, 0), tile.crop((left, top, left + w, top + h)))
     buf = io.BytesIO()
     img.save(buf, "JPEG", quality=70)
     return Response(buf.getvalue(), media_type="image/jpeg")

@@ -2,89 +2,124 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#04124c">
 <title>Find your photos · Lens It</title>
+<link rel="stylesheet" href="/static/app.css">
 <style>
-:root{--navy:#04124c;--orange:#f87a1b;--orange-wash:#fff3ec;--cream:#fef7f3;--ink:#222;--muted:#656a76;--line:#e4e5e8;--green:#096;--white:#fff}
-*{box-sizing:border-box}
-body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--cream);color:var(--ink)}
-main{max-width:720px;margin:auto;padding:24px 16px 48px}
-.brand{font-weight:800;color:var(--navy);letter-spacing:-.02em}
-.brand span{color:var(--orange)}
-.eyebrow{display:inline-block;font-size:.8rem;font-weight:600;color:var(--orange);background:var(--orange-wash);padding:6px 12px;border-radius:999px;margin-top:28px}
-h1{font-size:2rem;line-height:1.1;color:var(--navy);margin:12px 0 8px;letter-spacing:-.03em}
-p{color:var(--muted);line-height:1.5}
-.card{background:var(--white);border:1px solid var(--line);border-radius:24px;padding:20px;margin-top:20px}
-.card h2{margin:0 0 8px;font-size:1.05rem;color:var(--navy)}
-.check{display:flex;gap:10px;align-items:flex-start;margin-top:12px;color:var(--ink);line-height:1.45;cursor:pointer}
-.check input{width:20px;height:20px;accent-color:var(--orange);margin-top:2px;flex:none}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--orange);color:var(--white);border:0;border-radius:999px;padding:14px 24px;font-size:1rem;font-weight:700;text-decoration:none;cursor:pointer;width:100%;margin-top:16px}
-.btn.secondary{background:var(--navy)}
-.btn[aria-disabled=true]{opacity:.4;pointer-events:none}
-ul.ticks{list-style:none;padding:0;margin:8px 0 0}
-ul.ticks li{padding:4px 0;color:var(--ink)}
-ul.ticks li::before{content:"✓ ";color:var(--green);font-weight:700}
-#msg{font-weight:600;color:var(--navy)}
-#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:16px}
-#grid img{width:100%;border-radius:18px;display:block}
-.notice{margin-top:14px;background:var(--orange-wash);border-radius:16px;padding:10px 14px;font-size:.88rem}
+.page{max-width:560px;padding-top:24px}
+.hero{background:linear-gradient(150deg,var(--navy),var(--navy-2));color:#fff;border-radius:28px;padding:28px 24px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;width:220px;height:220px;border-radius:50%;background:var(--orange);opacity:.14;right:-80px;top:-110px;filter:blur(2px)}
+.hero .ev{display:inline-block;background:rgba(255,255,255,.12);color:var(--orange-light);font-weight:700;font-size:.82rem;padding:6px 12px;border-radius:999px;position:relative}
+.hero h1{color:#fff;font-size:2rem;margin:14px 0 6px;position:relative}
+.hero p{margin:0;color:rgba(255,255,255,.75);position:relative}
+.ticks{list-style:none;margin:0 0 16px;padding:0}
+.ticks li{display:flex;gap:10px;padding:6px 0;font-size:.95rem}
+.ticks li::before{content:"✓";color:var(--green);font-weight:800}
+.notice{background:var(--cream);border-radius:14px;padding:12px 14px;font-size:.88rem;margin-bottom:14px}
 .notice summary{cursor:pointer;font-weight:700;color:var(--navy)}
 .notice p{margin:8px 0 0;color:var(--ink)}
-.hidden{display:none}
+.buttons{display:grid;gap:10px;margin-top:16px}
+.buttons label{cursor:pointer}
+.buttons input{display:none}
+.searching{display:flex;align-items:center;gap:12px;font-weight:700;color:var(--navy);padding:18px;background:var(--white);border:1px solid var(--line);border-radius:18px;margin-top:16px}
+.result-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:24px 0 12px}
+.result-head h2{font-size:1.3rem}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:16px;display:block;background:var(--blue-light)}
+.empty{text-align:center;padding:28px 20px}
+.empty .icon{font-size:2.4rem}
+.foot{text-align:center;font-size:.8rem;color:var(--muted);margin-top:28px}
+@media (min-width:480px){.grid{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
-<main>
-  <div class="brand">Lens<span> It</span></div>
+<div class="topbar"><div class="in">
+  <span class="logo"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="10" fill="#04124c"/><circle cx="16" cy="16" r="8" fill="none" stroke="#f87a1b" stroke-width="3"/><circle cx="16" cy="16" r="3" fill="#fff"/></svg><b>Lens<span> It</span></b></span>
+  <span class="status">Private · local Wi-Fi</span>
+</div></div>
 
-  <div id="notready" class="hidden">
-    <span class="eyebrow">Almost there</span>
-    <h1>Photos are on their way.</h1>
-    <p>The photographer is still loading this event. Check back in a few minutes.</p>
+<main class="page">
+  <div id="notready" class="card empty hidden">
+    <div class="icon">⏳</div>
+    <h2>Photos are on their way</h2>
+    <p class="muted">The photographer is still loading this event. This page refreshes by itself.</p>
   </div>
 
   <div id="flow" class="hidden">
-    <span class="eyebrow">{{event_name}}</span>
-    <h1>Snap a selfie. Find your photos.</h1>
-    <p>Every photo you appear in, in seconds. No app. No sign-up.</p>
+    <div class="hero">
+      <span class="ev">{{event_name}}</span>
+      <h1>Snap a selfie.<br>Find your photos.</h1>
+      <p>Every photo you're in, in seconds. No app. No sign-up.</p>
+    </div>
 
-    <div class="card" id="consentCard">
-      <h2>Before you start</h2>
+    <div class="card" style="margin-top:16px" id="consentCard">
       <ul class="ticks">
-        <li>Your selfie is matched on the photographer's laptop, over this Wi-Fi.</li>
-        <li>It is never saved and never sent to the internet.</li>
-        <li>All face data is deleted after the event.</li>
+        <li>Matched on the photographer's laptop, over this Wi-Fi</li>
+        <li>Your selfie is never saved or sent to the internet</li>
+        <li>All face data is deleted after the event</li>
       </ul>
       <details class="notice"><summary>Read the privacy notice</summary>
         <p>The photographer running this event is responsible for this data. Your selfie is turned into a face fingerprint (biometric data) only to find your photos. It's matched on the photographer's laptop over this local Wi-Fi, never saved and never sent to the internet. Your results are kept in memory for up to 30 minutes. The event's face data is deleted automatically after the event. No cookies or trackers are used.</p>
-        <p>This is optional. If you'd rather not use it, ask the photographer for your photos instead. To have the event's face data deleted early, ask the photographer.</p>
+        <p>This is optional. If you'd rather not use it, ask the photographer for your photos. To have the event's face data deleted early, ask the photographer.</p>
       </details>
-      <label class="check"><input type="checkbox" id="agree"> I'm 18+ (or have a parent's permission), I'm searching only for myself, and I consent to my selfie being used to find my photos at this event.</label>
-      <label class="btn" id="snap" aria-disabled="true">📸 Take selfie<input id="f" type="file" accept="image/*" capture="user" hidden></label>
+      <label class="check"><input type="checkbox" id="agree">
+        <span>I'm 18+ (or have a parent's permission), I'm searching only for myself, and I consent to my selfie being used to find my photos at this event.</span>
+      </label>
+      <div class="buttons">
+        <label class="btn primary block" id="snap" aria-disabled="true">📸 Take a selfie<input id="cam" type="file" accept="image/*" capture="user"></label>
+        <label class="btn ghost block" id="pick" aria-disabled="true">🖼️ Choose a photo of me<input id="gal" type="file" accept="image/*"></label>
+      </div>
     </div>
 
-    <p id="msg"></p>
-    <div id="dl"></div>
-    <div id="grid"></div>
+    <div class="searching hidden" id="busy"><div class="spinner"></div>Looking for you in every photo…</div>
+    <div class="alert err hidden" id="err"></div>
+
+    <section class="hidden" id="results">
+      <div class="result-head"><h2 id="found"></h2><a class="btn navy" id="dl">⬇ Download all</a></div>
+      <div class="grid" id="grid"></div>
+      <p class="hint">Previews are watermarked. The download contains the full-quality photos.</p>
+    </section>
+
+    <div class="card empty hidden" id="none">
+      <div class="icon">🔍</div>
+      <h2>No photos found yet</h2>
+      <p class="muted">Try again with a close-up, front-facing selfie in good light. Remove sunglasses or hats if you can.</p>
+    </div>
   </div>
+
+  <p class="foot">Powered by Lens It · open-source, offline face matching</p>
 </main>
+
 <script>
+const $ = id => document.getElementById(id);
 const ready = {{ready}};
-document.getElementById(ready ? 'flow' : 'notready').classList.remove('hidden');
-agree.onchange = () => snap.setAttribute('aria-disabled', !agree.checked);
-f.onchange = async () => {
-  if (!f.files[0]) return;
-  msg.textContent = 'Looking for you…'; grid.innerHTML = ''; dl.innerHTML = '';
-  const fd = new FormData(); fd.append('selfie', f.files[0]); fd.append('consent', 'yes');
-  f.value = '';
+$(ready ? 'flow' : 'notready').classList.remove('hidden');
+if (!ready) setTimeout(() => location.reload(), 15000);
+
+$('agree').onchange = e => ['snap', 'pick'].forEach(id => $(id).setAttribute('aria-disabled', !e.target.checked));
+
+async function search(file) {
+  if (!file) return;
+  ['results', 'none', 'err'].forEach(id => $(id).classList.add('hidden'));
+  $('busy').classList.remove('hidden');
+  const fd = new FormData(); fd.append('selfie', file); fd.append('consent', 'yes');
   try {
     const r = await fetch('/search', {method: 'POST', body: fd}); const j = await r.json();
-    if (!r.ok) { msg.textContent = j.detail; return; }
-    msg.textContent = j.count ? `Found ${j.count} photo${j.count > 1 ? 's' : ''} of you!` : 'No matches yet. Try a brighter, front-facing selfie.';
-    if (j.count) dl.innerHTML = `<a class="btn secondary" href="/download/${j.token}">Download all (ZIP) →</a>`;
-    for (let i = 0; i < j.count; i++) { const im = new Image(); im.loading = 'lazy'; im.alt = 'Your photo'; im.src = `/preview/${j.token}/${i}`; grid.append(im); }
-  } catch { msg.textContent = "Couldn't reach the photographer's laptop. Are you on the event Wi-Fi?"; }
-};
+    if (!r.ok) { $('err').textContent = j.detail; $('err').classList.remove('hidden'); return; }
+    if (!j.count) { $('none').classList.remove('hidden'); return; }
+    $('found').textContent = `🎉 Found ${j.count} photo${j.count > 1 ? 's' : ''} of you`;
+    $('dl').href = `/download/${j.token}`;
+    $('grid').innerHTML = '';
+    for (let i = 0; i < j.count; i++) { const im = new Image(); im.loading = 'lazy'; im.alt = 'Your photo ' + (i + 1); im.src = `/preview/${j.token}/${i}`; $('grid').append(im); }
+    $('results').classList.remove('hidden');
+    $('results').scrollIntoView({behavior: 'smooth'});
+  } catch {
+    $('err').textContent = "Couldn't reach the photographer's laptop. Are you connected to the event Wi-Fi?";
+    $('err').classList.remove('hidden');
+  } finally { $('busy').classList.add('hidden'); }
+}
+['cam', 'gal'].forEach(id => $(id).onchange = e => { const f = e.target.files[0]; e.target.value = ''; search(f); });
 </script>
 </body>
 </html>
