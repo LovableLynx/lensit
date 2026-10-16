@@ -4,6 +4,8 @@
 
 **Find yourself in every moment.**
 
+[![CI](https://github.com/LovableLynx/lensit/actions/workflows/ci.yml/badge.svg)](https://github.com/LovableLynx/lensit/actions/workflows/ci.yml) [![Release](https://github.com/LovableLynx/lensit/actions/workflows/release.yml/badge.svg)](https://github.com/LovableLynx/lensit/actions/workflows/release.yml)
+
 Offline, local-first event photo finder. A photographer indexes a shoot on their laptop; guests at the venue scan a QR code, take a selfie, and get every photo they're in — **without the internet**.
 
 - Selfies are matched in memory on the photographer's laptop and never saved or sent online.
@@ -35,6 +37,17 @@ Guests must be on the same Wi-Fi/hotspot as the laptop.
 
 ## Website
 Landing page: https://lovablelynx.github.io/lensit/ (source in `docs/`).
+
+## Development
+```bash
+pip install --require-hashes -r requirements.txt
+pip install -r requirements-dev.txt
+python -m pytest -q tests
+```
+Every push runs the tests on GitHub Actions. Pushing a tag like `v0.2.0` makes GitHub test, build and publish `LensIt.exe` with its SHA-256 checksum and a signed build attestation, so anyone can verify the file was built from this repo:
+```bash
+gh attestation verify LensIt.exe --repo LovableLynx/lensit
+```
 
 ## License
 Code: MIT. Face models: Apache-2.0 (see opencv_zoo).

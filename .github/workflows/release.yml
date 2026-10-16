@@ -1,0 +1,96 @@
+name: Release
+
+# Push a tag like v0.2.0 and GitHub builds, tests, signs and publishes LensIt.exe.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write      # create the release
+  id-token: write      # sign the build provenance
+  attestations: write  # publish the provenance
+
+jobs:
+  build:
+    name: Build LensIt.exe
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies (hash-checked)
+        run: |
+          pip install --require-hashes --only-binary=:all: -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Download and verify face models
+        run: python -c "from lensit.faces import download_models; download_models()"
+
+      - name: Test before building
+        run: |
+          python -m pyflakes lensit tests run_app.py
+          python -m pytest -q tests
+
+      - name: Build the app
+        run: >
+          pyinstaller --noconfirm --onefile --name LensIt
+          --icon lensit/static/icon.ico
+          --add-data "models;models"
+          --add-data "lensit/pages;lensit/pages"
+          --add-data "lensit/static;lensit/static"
+          --exclude-module tkinter
+          run_app.py
+
+      - name: Smoke-test the built exe
+        shell: pwsh
+        run: |
+          $p = Start-Process dist\LensIt.exe -PassThru
+          $ok = $false
+          foreach ($i in 1..30) {
+            Start-Sleep 3
+            try { if ((Invoke-WebRequest http://localhost:8000/setup -UseBasicParsing).StatusCode -eq 200) { $ok = $true; break } } catch {}
+          }
+          Get-Process LensIt -ErrorAction SilentlyContinue | Stop-Process -Force
+          if (-not $ok) { throw "LensIt.exe did not start" }
+
+      - name: Checksum
+        shell: pwsh
+        run: |
+          $hash = (Get-FileHash dist\LensIt.exe -Algorithm SHA256).Hash.ToLower()
+          "$hash  LensIt.exe" | Out-File -Encoding ascii dist\SHA256SUMS.txt
+          "HASH=$hash" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+
+      # Signed proof that this exact file was built from this repo by this workflow.
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: dist/LensIt.exe
+
+      - name: Publish release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $notes = @"
+          **Lens It: find yourself in every moment.**
+
+          Guests find every event photo they're in with one selfie, matched offline on the photographer's laptop.
+
+          ### Windows (no Python needed)
+          1. Download **LensIt.exe** below.
+          2. Double-click it. Windows may show *"Windows protected your PC"* because the app isn't code-signed yet: click **More info → Run anyway**.
+          3. Your browser opens the setup screen. Keep the black window open during the event.
+
+          ### Verify your download
+          SHA-256: ``$env:HASH``
+
+          - PowerShell: ``Get-FileHash .\LensIt.exe``
+          - Proof it was built by GitHub from this repo: ``gh attestation verify LensIt.exe --repo ${{ github.repository }}``
+
+          Built automatically by [this workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) after all tests passed.
+          "@
+          $notes | Out-File -Encoding utf8 notes.md
+          gh release create "${{ github.ref_name }}" dist/LensIt.exe dist/SHA256SUMS.txt --title "Lens It ${{ github.ref_name }}" --notes-file notes.md
