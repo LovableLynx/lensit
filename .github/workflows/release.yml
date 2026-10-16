@@ -35,14 +35,9 @@ jobs:
           python -m pytest -q tests
 
       - name: Build the app
-        run: >
-          pyinstaller --noconfirm --onefile --name LensIt
-          --icon lensit/static/icon.ico
-          --add-data "models;models"
-          --add-data "lensit/pages;lensit/pages"
-          --add-data "lensit/static;lensit/static"
-          --exclude-module tkinter
-          run_app.py
+        run: |
+          python tools/make_version.py "${{ github.ref_name }}"
+          pyinstaller --noconfirm --onefile --name LensIt --icon lensit/static/icon.ico --version-file version_info.txt --add-data "models;models" --add-data "lensit/pages;lensit/pages" --add-data "lensit/static;lensit/static" --exclude-module tkinter run_app.py
 
       - name: Smoke-test the built exe
         shell: pwsh
@@ -75,7 +70,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $notes = @"
-          **Lens It: find yourself in every moment.**
+          **Lens It: find yourself in every moment.** A WANDERCOIL product.
 
           Guests find every event photo they're in with one selfie, matched offline on the photographer's laptop.
 

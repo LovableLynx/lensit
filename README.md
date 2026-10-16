@@ -50,4 +50,13 @@ gh attestation verify LensIt.exe --repo LovableLynx/lensit
 ```
 
 ## License
-Code: MIT. Face models: Apache-2.0 (see opencv_zoo).
+Copyright (C) 2026 WANDERCOIL (Oluwadarasimi Olowe).
+
+Lens It is free, open-source software under the **GNU Affero General Public License v3.0** (see [LICENSE](LICENSE)). You can use, study, change and share it. If you distribute it, or run a modified version as a service, you must publish your full source code under the same licence and keep this copyright notice. For a commercial licence without these terms, contact WANDERCOIL.
+
+Face models: YuNet and SFace by OpenCV, Apache-2.0. Fonts: Plus Jakarta Sans and Space Grotesk, SIL Open Font License.
+
+**Trademarks:** Lens It and the Lens It and WANDERCOIL logos are trademarks of WANDERCOIL. The open-source licence covers the code only, not the names or logos. Forks must use a different name and logo.
+
+---
+Lens It is a **WANDERCOIL** product.
