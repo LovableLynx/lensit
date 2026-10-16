@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/logo.svg" width="96" alt="Lens It logo"></p>
+
 # Lens It
 
 **Find yourself in every moment.**
