@@ -56,7 +56,7 @@ Lens It is free, open-source software under the **GNU Affero General Public Lice
 
 Face models: YuNet and SFace by OpenCV, Apache-2.0. Fonts: Plus Jakarta Sans and Space Grotesk, SIL Open Font License.
 
-**Trademarks:** Lens It and the Lens It and WANDERCOIL logos are trademarks of WANDERCOIL. The open-source licence covers the code only, not the names or logos. Forks must use a different name and logo.
+**Trademarks:** Lens It™, Wandercoil™ and their logos are trademarks of Wandercoil. The open-source licence covers the code only, not the names or logos. Forks must use a different name and logo.
 
 ---
 Lens It is a **WANDERCOIL** product.

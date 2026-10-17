@@ -16,7 +16,7 @@ open("version_info.txt", "w", encoding="utf-8").write(f"""VSVersionInfo(
       StringStruct('FileVersion', '{version}'),
       StringStruct('InternalName', 'LensIt'),
       StringStruct('LegalCopyright', 'Copyright (C) 2026 WANDERCOIL. AGPL-3.0'),
-      StringStruct('LegalTrademarks', 'Lens It and WANDERCOIL are trademarks of WANDERCOIL'),
+      StringStruct('LegalTrademarks', 'Lens It and Wandercoil are trademarks of Wandercoil'),
       StringStruct('OriginalFilename', 'LensIt.exe'),
       StringStruct('ProductName', 'Lens It'),
       StringStruct('ProductVersion', '{version}')])]),
