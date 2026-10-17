@@ -1,5 +1,13 @@
 {
   "enabled": true,
+  "strategy_options": {
+    "checkpoint_remote": {
+      "provider": "github",
+      "repo": "LovableLynx/lensit-sessions"
+    },
+    "push_sessions": false
+  },
+  "telemetry": false,
   "checkpoints": {
     "primary": {
       "type": "git-refs"

@@ -6,7 +6,7 @@
 
 @font-face{font-family:"Space Grotesk";font-weight:500;font-display:swap;src:url(/static/fonts/spacegrotesk-500.woff2) format("woff2")}
 
-:root{--navy:#04124c;--navy-2:#0b1d66;--orange:#f87a1b;--orange-dark:#e56a0e;--orange-light:#ffb37d;--orange-wash:#fff3ec;--cream:#fef7f3;--ink:#1d2030;--muted:#656a76;--line:#e4e5e8;--green:#096;--green-wash:#e6f6f0;--blue-light:#eaf0ff;--red:#b42318;--red-wash:#fef3f2;--white:#fff;--shadow:0 1px 2px rgba(4,18,76,.04),0 8px 24px -12px rgba(4,18,76,.12)}
+:root{--navy:#04124c;--navy-2:#0b1d66;--orange:#b84a06;--orange-bright:#f87a1b;--orange-dark:#9a3d05;--orange-light:#ffb37d;--orange-wash:#fff3ec;--cream:#fef7f3;--ink:#1d2030;--muted:#5b606b;--line:#e4e5e8;--green:#007a52;--green-wash:#e6f6f0;--blue-light:#eaf0ff;--red:#b42318;--red-wash:#fef3f2;--white:#fff;--shadow:0 1px 2px rgba(4,18,76,.04),0 8px 24px -12px rgba(4,18,76,.12)}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;font-family:"Plus Jakarta Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--cream);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
@@ -85,7 +85,7 @@ h2{margin:0;color:var(--navy);font-size:1.25rem;letter-spacing:-.02em}
 .btn.danger{background:var(--white);color:var(--red);border:1.5px solid #f4c7c3}
 .btn.danger:hover{background:var(--red-wash)}
 .btn.block{width:100%}
-.btn[disabled],.btn[aria-disabled=true]{opacity:.4;pointer-events:none}
+.btn[disabled],.btn[aria-disabled=true]{pointer-events:none;filter:grayscale(1);opacity:.6}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px;align-items:center}
 
 /* progress */
@@ -115,5 +115,5 @@ h2{margin:0;color:var(--navy);font-size:1.25rem;letter-spacing:-.02em}
 }
 
 /* WANDERCOIL endorsement */
-.wc{display:inline-flex;align-items:center;gap:8px;color:inherit;text-decoration:none;font-size:.82rem;opacity:.85}.wc:hover{opacity:1}.wc .wc-mark{width:14px;height:14px;flex:none}.wc b{font-family:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;font-weight:500;letter-spacing:.06em}
+.wc{display:inline-flex;align-items:center;gap:12px;color:inherit;text-decoration:none;font-family:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;font-weight:500;font-size:1rem;letter-spacing:.01em}.wc:hover{opacity:.85}.wc .wc-mark{width:32px;height:32px;flex:none}
 .endorse{text-align:center;color:var(--muted);margin:28px 0 0}

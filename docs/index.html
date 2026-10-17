@@ -17,7 +17,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--navy:#04124c;--navy-2:#0b1d66;--orange:#f87a1b;--orange-light:#ffb37d;--orange-wash:#fff3ec;--cream:#fef7f3;--ink:#222;--muted:#656a76;--line:#e4e5e8;--green:#096;--blue:#2865ef;--blue-light:#eaf0ff;--white:#fff;--surface:#f9fafb}
+:root{--navy:#04124c;--navy-2:#0b1d66;--orange:#b84a06;--orange-bright:#f87a1b;--orange-light:#ffb37d;--orange-wash:#fff3ec;--cream:#fef7f3;--ink:#222;--muted:#5b606b;--line:#e4e5e8;--green:#007a52;--blue:#2865ef;--blue-light:#eaf0ff;--white:#fff;--surface:#f9fafb}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;font-family:"Plus Jakarta Sans",ui-sans-serif,system-ui,sans-serif;background:var(--white);color:var(--ink);line-height:1.5;overflow-x:hidden}
@@ -60,7 +60,7 @@ header .btn{padding:10px 18px;font-size:.9rem}
 .hero h1 em{font-style:normal;color:var(--orange);position:relative}
 .hero h1 em::after{content:"";position:absolute;left:0;right:0;bottom:.05em;height:.14em;background:var(--orange-light);opacity:.45;border-radius:4px;z-index:-1}
 .hero .ctas{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
-.hero .proof{display:flex;gap:18px;flex-wrap:wrap;margin-top:28px;color:var(--muted);font-weight:600;font-size:.9rem}
+.hero .proof{display:flex;gap:18px;flex-wrap:wrap;margin-top:28px;color:#3f444d;font-weight:600;font-size:.9rem}
 .hero .proof span::before{content:"✓ ";color:var(--green)}
 .phone{position:relative;justify-self:center;width:290px;background:var(--navy);border-radius:42px;padding:12px;box-shadow:0 40px 80px -24px rgba(4,18,76,.45);animation:bob 6s ease-in-out infinite}
 @keyframes bob{50%{transform:translateY(-10px)}}
@@ -250,7 +250,22 @@ footer .logo{color:#fff}
   .phone{width:250px}
   .f1,.f2{display:none}
 }
-.wc{display:inline-flex;align-items:center;gap:8px;color:inherit;text-decoration:none;font-size:.82rem;opacity:.85}.wc:hover{opacity:1}.wc .wc-mark{width:14px;height:14px;flex:none}.wc b{font-family:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;font-weight:500;letter-spacing:.06em}
+.wc{display:inline-flex;align-items:center;gap:12px;color:inherit;text-decoration:none;font-family:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;font-weight:500;font-size:1rem;letter-spacing:.01em}.wc:hover{opacity:.85}.wc .wc-mark{width:32px;height:32px;flex:none}
+
+/* readability: on navy, use the bright orange */
+.cta .eyebrow{background:rgba(255,255,255,.12)!important;color:var(--orange-light)!important}
+.who .card .n{opacity:1!important}
+.dark .eyebrow,.cta .eyebrow,footer .eyebrow{color:var(--orange-light)}
+footer .wc{color:#fff}
+footer .logo .wmark span,.cta ol b{color:var(--orange-light)!important}footer .logo .wmark{color:#fff}
+.marquee .track span::before,.flow .node small,.arrow span{color:var(--orange-light)}
+.who .card p{color:rgba(255,255,255,.92);opacity:1}
+.who .card .n{color:#fff;opacity:.85}
+.tm{opacity:1!important;color:rgba(255,255,255,.75)}
+.term .c{color:rgba(214,222,250,.72)}
+.hero h1 em::after{background:var(--orange-bright)}
+.btn.primary:hover{background:var(--orange-dark)}
+.cta::before,.cta::after{background:var(--orange-bright)}
 </style>
 </head>
 <body>
@@ -352,12 +367,12 @@ footer .logo{color:#fff}
       <h2>Every event where faces matter.</h2>
     </div>
     <div class="who">
-      <div class="card reveal" style="background:linear-gradient(150deg,#f87a1b,#c4530a)"><span class="n">01</span><div><h3>Weddings &amp; owambes</h3><p>Hundreds of guests, aso-ebi everywhere. Everyone wants their picture.</p></div></div>
-      <div class="card reveal" style="background:linear-gradient(150deg,#2865ef,#04124c)"><span class="n">02</span><div><h3>Convocations</h3><p>Graduates and families find their moment without endless scrolling.</p></div></div>
-      <div class="card reveal" style="background:linear-gradient(150deg,#096,#04124c)"><span class="n">03</span><div><h3>Church &amp; mosque events</h3><p>Weddings, dedications and conventions, even with no signal.</p></div></div>
-      <div class="card reveal" style="background:linear-gradient(150deg,#04124c,#2865ef)"><span class="n">04</span><div><h3>Marathons &amp; sports</h3><p>Runners find their finish-line shot before they cool down.</p></div></div>
-      <div class="card reveal" style="background:linear-gradient(150deg,#c4530a,#04124c)"><span class="n">05</span><div><h3>Corporate events</h3><p>Conferences and launches where attendees' data must stay private.</p></div></div>
-      <div class="card reveal" style="background:linear-gradient(150deg,#096,#2865ef)"><span class="n">06</span><div><h3>Birthdays &amp; reunions</h3><p>Smaller shoots, same magic. Works with any folder of photos.</p></div></div>
+      <div class="card reveal" style="background:linear-gradient(150deg,#c2410c,#7c2d12)"><span class="n">01</span><div><h3>Weddings &amp; owambes</h3><p>Hundreds of guests, aso-ebi everywhere. Everyone wants their picture.</p></div></div>
+      <div class="card reveal" style="background:linear-gradient(150deg,#1d4ed8,#04124c)"><span class="n">02</span><div><h3>Convocations</h3><p>Graduates and families find their moment without endless scrolling.</p></div></div>
+      <div class="card reveal" style="background:linear-gradient(150deg,#047857,#04124c)"><span class="n">03</span><div><h3>Church &amp; mosque events</h3><p>Weddings, dedications and conventions, even with no signal.</p></div></div>
+      <div class="card reveal" style="background:linear-gradient(150deg,#04124c,#1d4ed8)"><span class="n">04</span><div><h3>Marathons &amp; sports</h3><p>Runners find their finish-line shot before they cool down.</p></div></div>
+      <div class="card reveal" style="background:linear-gradient(150deg,#9a3412,#04124c)"><span class="n">05</span><div><h3>Corporate events</h3><p>Conferences and launches where attendees' data must stay private.</p></div></div>
+      <div class="card reveal" style="background:linear-gradient(150deg,#047857,#1d4ed8)"><span class="n">06</span><div><h3>Birthdays &amp; reunions</h3><p>Smaller shoots, same magic. Works with any folder of photos.</p></div></div>
     </div>
   </div>
 </section>
@@ -527,7 +542,7 @@ footer .logo{color:#fff}
       <div><h4>Trust</h4><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Use</a><a href="privacy.html#cookies">Cookies (none)</a><a href="#faq">FAQ</a></div>
       <div><h4>Open source</h4><a href="https://github.com/LovableLynx/lensit">GitHub</a><a href="#open">Models &amp; licences</a></div>
     </div>
-    <div class="fbot"><span><a class="wc" href="https://github.com/LovableLynx/lensit" title="Lens It is a WANDERCOIL product"><svg class="wc-mark" viewBox="0 0 120 120" aria-hidden="true"><path d="M14,14 L46,14 L46,54 L14,54 Z M106,106 L74,106 L74,66 L106,66 Z" fill="currentColor"/></svg><span>a <b>WANDERCOIL</b> product</span></a></span><span>© 2026 WANDERCOIL · Open source (AGPL-3.0) · No cookies. No tracking.</span></div>
+    <div class="fbot"><span><a class="wc" href="https://github.com/LovableLynx/lensit" title="Lens It is a Wandercoil product"><svg class="wc-mark" viewBox="0 0 120 120" aria-hidden="true"><path d="M18,16 L38,16 L38,50 L18,70 Z M102,104 L82,104 L82,70 L102,50 Z" fill="currentColor"/></svg><span>A Wandercoil Product</span></a></span><span>© 2026 WANDERCOIL · Open source (AGPL-3.0) · No cookies. No tracking.</span></div>
     <p class="tm">Lens It and the Lens It and WANDERCOIL logos are trademarks of WANDERCOIL.</p>
   </div>
 </footer>

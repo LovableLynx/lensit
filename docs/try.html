@@ -17,7 +17,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--navy:#04124c;--orange:#f87a1b;--orange-light:#ffb37d;--orange-wash:#fff3ec;--cream:#fef7f3;--ink:#222;--muted:#656a76;--line:#e4e5e8;--green:#096;--blue-light:#eaf0ff;--white:#fff;--red:#b42318}
+:root{--navy:#04124c;--orange:#b84a06;--orange-bright:#f87a1b;--orange-light:#ffb37d;--orange-wash:#fff3ec;--cream:#fef7f3;--ink:#222;--muted:#5b606b;--line:#e4e5e8;--green:#007a52;--blue-light:#eaf0ff;--white:#fff;--red:#b42318}
 *{box-sizing:border-box}
 body{margin:0;font-family:"Plus Jakarta Sans",ui-sans-serif,system-ui,sans-serif;background:var(--cream);color:var(--ink);line-height:1.5}
 .wrap{max-width:1000px;margin:auto;padding:0 16px}
@@ -32,7 +32,7 @@ h1{font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--navy);letter-spac
 .privacy span{background:var(--white);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:600;font-size:.88rem;color:var(--navy)}
 .privacy span::before{content:"✓ ";color:var(--green)}
 .card{background:var(--white);border:1px solid var(--line);border-radius:24px;padding:24px;margin-top:20px}
-.card.off{opacity:.5;pointer-events:none}
+.card.off{pointer-events:none}.card.off .btn,.card.off .agree,.card.off .bar{opacity:.45}.card.off .num{background:#9aa0aa}
 .head{display:flex;gap:14px;align-items:center}
 .num{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--orange);color:#fff;font-weight:800;flex:none}
 .card h2{margin:0;color:var(--navy);font-size:1.25rem;letter-spacing:-.02em}
@@ -64,7 +64,7 @@ h1{font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--navy);letter-spac
 .roles div{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:14px 16px;font-size:.92rem;color:var(--muted)}
 .roles b{display:block;color:var(--navy);margin-bottom:4px}
 .role{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--orange);margin-bottom:2px}
-.role.guest{color:var(--green)}
+.role.guest{color:var(--green)}.card.off .role{color:#6b7280}
 .lock{margin:12px 0 0;font-size:.88rem;font-weight:600;color:var(--muted)}
 .card:not(.off) .lock{display:none}
 @media (max-width:640px){.roles{grid-template-columns:1fr}}
@@ -74,7 +74,7 @@ h1{font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--navy);letter-spac
 .note{font-size:.85rem;color:var(--muted);margin-top:28px;padding-bottom:48px}
 .note a{color:var(--navy)}
 .logo{display:inline-flex;align-items:center;gap:10px}.logo .mark{width:30px;height:30px;flex:none}.logo .wmark span{color:var(--orange)}
-.wc{display:inline-flex;align-items:center;gap:8px;color:inherit;text-decoration:none;font-size:.82rem;opacity:.85}.wc:hover{opacity:1}.wc .wc-mark{width:14px;height:14px;flex:none}.wc b{font-family:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;font-weight:500;letter-spacing:.06em}
+.wc{display:inline-flex;align-items:center;gap:12px;color:inherit;text-decoration:none;font-family:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;font-weight:500;font-size:1rem;letter-spacing:.01em}.wc:hover{opacity:.85}.wc .wc-mark{width:32px;height:32px;flex:none}
 </style>
 </head>
 <body>
@@ -100,7 +100,7 @@ h1{font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--navy);letter-spac
 
   <section class="card off" id="c1">
     <div class="head"><div class="num">1</div><div><span class="role">You're the photographer</span><h2>Add event photos</h2><p class="sub">Select several photos at once (hold Ctrl on a laptop). Use 10–50 photos of people, ideally some with you in them and some without.</p></div></div>
-    <label class="agree"><input type="checkbox" id="agreeTry"> I have permission to use these photos, I'll only search with my own face, and I agree to the <a href="terms.html" target="_blank">Terms</a> and <a href="privacy.html" target="_blank">Privacy Policy</a>. Nothing leaves this device.</label>
+    <label class="agree"><input type="checkbox" id="agreeTry"><span>I have permission to use these photos, I'll only search with my own face, and I agree to the <a href="terms.html" target="_blank">Terms</a> and <a href="privacy.html" target="_blank">Privacy Policy</a>. Nothing leaves this device.</span></label>
     <label class="btn" id="choose" aria-disabled="true">📁 Choose photos<input type="file" id="photos" accept="image/*" multiple disabled></label>
     <div class="bar"><div id="pbar"></div></div>
     <div class="msg" id="pmsg"></div>
@@ -127,7 +127,7 @@ h1{font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--navy);letter-spac
   </section>
 
   <p class="note">How it works: <strong>YuNet</strong> finds faces and <strong>SFace</strong> turns each one into 128 numbers. Faces are compared by cosine similarity (a match is ≥ 0.363, OpenCV's recommended threshold). Both models are Apache-2.0, from <a href="https://github.com/opencv/opencv_zoo">opencv_zoo</a>, and run with ONNX Runtime Web. Results can include misses, especially for side profiles, sunglasses or dark photos. <a href="https://github.com/LovableLynx/lensit">Source code</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · No cookies.</p>
-  <p class="note" style="padding-bottom:40px;margin-top:-30px"><a class="wc" href="https://github.com/LovableLynx/lensit" title="Lens It is a WANDERCOIL product"><svg class="wc-mark" viewBox="0 0 120 120" aria-hidden="true"><path d="M14,14 L46,14 L46,54 L14,54 Z M106,106 L74,106 L74,66 L106,66 Z" fill="currentColor"/></svg><span>a <b>WANDERCOIL</b> product</span></a></p>
+  <p class="note" style="padding-bottom:40px;margin-top:-30px"><a class="wc" href="https://github.com/LovableLynx/lensit" title="Lens It is a Wandercoil product"><svg class="wc-mark" viewBox="0 0 120 120" aria-hidden="true"><path d="M18,16 L38,16 L38,50 L18,70 Z M102,104 L82,104 L82,70 L102,50 Z" fill="currentColor"/></svg><span>A Wandercoil Product</span></a></p>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/ort.min.js" integrity="sha384-4uQjzVxVRlLf2zq2sqRNKh3IzetqQzu15fI6xgLQzhXYGJMtTZc/fvdszanED0Zp" crossorigin="anonymous"></script>
