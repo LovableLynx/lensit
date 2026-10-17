@@ -72,6 +72,37 @@ h1{font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--navy);letter-spac
 .agree{display:flex;gap:10px;align-items:flex-start;margin-top:16px;font-size:.92rem;color:var(--ink);cursor:pointer;line-height:1.45}
 .agree input{width:20px;height:20px;accent-color:var(--orange);margin-top:1px;flex:none}
 .btn[aria-disabled=true]{opacity:.4;pointer-events:none}
+
+/* results (same design as the app's guest page) */
+.res{margin-top:18px}
+.summary{background:var(--cream);border-radius:20px;padding:18px}
+.summary .top{display:flex;align-items:center;gap:14px}
+.summary .count{width:56px;height:56px;border-radius:16px;background:var(--orange);color:#fff;display:grid;place-items:center;font-weight:800;font-size:1.5rem;flex:none}
+.summary h3{margin:0;color:var(--navy);font-size:1.2rem}
+.summary .sub2{margin:2px 0 0;color:var(--muted);font-size:.9rem}
+.summary .note2{margin:12px 0 0;font-size:.82rem;color:var(--muted)}
+.sec{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:20px 2px 10px}
+.sec h4{margin:0;color:var(--navy);font-size:1rem}
+.sec span{color:var(--muted);font-size:.85rem}
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.ph{margin:0;position:relative;border-radius:16px;overflow:hidden;background:var(--blue-light);cursor:zoom-in}
+.ph img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.ph .tag{position:absolute;left:8px;top:8px;background:rgba(29,31,32,.8);color:#fff;font-size:.72rem;font-weight:700;padding:4px 9px;border-radius:999px}
+.ph.sure .tag{background:var(--orange)}
+.ph .act{position:absolute;left:8px;right:8px;bottom:8px;display:flex;gap:6px}
+.ph .act button{flex:1;border:0;border-radius:999px;padding:7px 6px;font-weight:700;font-size:.78rem;cursor:pointer;font-family:inherit}
+.ph .yes{background:#fff;color:var(--navy)}.ph .no{background:rgba(29,31,32,.8);color:#fff}
+.ph.confirmed{box-shadow:0 0 0 3px var(--orange)}.ph.confirmed .act{display:none}
+.ph.removed{opacity:.35}.ph.removed .act .yes{display:none}
+.maybe-note{background:var(--cream);border-radius:12px;padding:10px 12px;font-size:.85rem;margin:0 0 10px}
+.viewer{position:fixed;inset:0;background:rgba(10,12,20,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;z-index:50}
+.viewer img{max-width:100%;max-height:72vh;border-radius:14px}
+.viewer .vbar{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;justify-content:center}
+.viewer .nav,.viewer .close{position:absolute;width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.15);color:#fff;font-size:1.3rem;cursor:pointer}
+.viewer .nav{top:50%;transform:translateY(-50%)}.viewer .prev{left:10px}.viewer .next{right:10px}.viewer .close{top:14px;right:14px}
+.viewer .pos{color:rgba(255,255,255,.75);font-size:.85rem;margin-top:8px}
+.viewer .btn.ghost{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.3)}
+.hidden{display:none!important}
 .note{font-size:.85rem;color:var(--muted);margin-top:28px;padding-bottom:48px}
 .note a{color:var(--navy)}
 .logo{display:inline-flex;align-items:center;gap:10px}.logo .mark{width:30px;height:30px;flex:none}.logo .wmark span{color:var(--orange)}
@@ -125,12 +156,30 @@ h1{font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--navy);letter-spac
     </div>
     <div class="msg" id="smsg"></div>
     <div class="result" id="result"></div>
+    <div class="res hidden" id="res">
+      <div class="summary">
+        <div class="top"><div class="count" id="rCount">0</div><div><h3 id="rFound"></h3><p class="sub2" id="rSub"></p></div></div>
+        <p class="note2">Matched entirely on this device. At a real event, guests download their full-quality photos from the photographer's laptop.</p>
+      </div>
+      <div id="rSureBox"><div class="sec"><h4>Your photos</h4><span>Tap to view</span></div><div class="rgrid" id="rSure"></div></div>
+      <div id="rMaybeBox"><div class="sec"><h4>Maybe you?</h4><span id="rMaybeCount"></span></div>
+        <p class="maybe-note">Less certain matches. Tap <b>✓ Me</b> to keep one or <b>Not me</b> to hide it.</p>
+        <div class="rgrid" id="rMaybe"></div></div>
+    </div>
   </section>
 
   <p class="note">How it works: <strong>YuNet</strong> finds faces and <strong>SFace</strong> turns each one into 128 numbers. Faces are compared by cosine similarity (a match is ≥ 0.363, OpenCV's recommended threshold). Both models are Apache-2.0, from <a href="https://github.com/opencv/opencv_zoo">opencv_zoo</a>, and run with ONNX Runtime Web. Results can include misses, especially for side profiles, sunglasses or dark photos. <a href="https://github.com/Wandercoil/lensit">Source code</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · No cookies.</p>
   <p class="note" style="padding-bottom:40px;margin-top:-30px"><a class="wc" href="https://github.com/Wandercoil/lensit" title="Lens It is a Wandercoil product"><svg class="wc-mark" viewBox="0 0 120 120" aria-hidden="true"><path d="M18,16 L38,16 L38,50 L18,70 Z M102,104 L82,104 L82,70 L102,50 Z" fill="currentColor"/></svg><span>A Wandercoil Product</span></a></p>
 </main>
 
+<div class="viewer hidden" id="viewer" role="dialog" aria-label="Photo viewer">
+  <button class="close" id="vClose" type="button" aria-label="Close">✕</button>
+  <button class="nav prev" id="vPrev" type="button" aria-label="Previous">‹</button>
+  <img id="vImg" alt="Photo">
+  <button class="nav next" id="vNext" type="button" aria-label="Next">›</button>
+  <div class="pos" id="vPos"></div>
+  <div class="vbar"><button class="btn ghost" id="vMe" type="button">✓ This is me</button><a class="btn" id="vSave">⬇ Save this photo</a></div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/ort.min.js" integrity="sha384-4uQjzVxVRlLf2zq2sqRNKh3IzetqQzu15fI6xgLQzhXYGJMtTZc/fvdszanED0Zp" crossorigin="anonymous"></script>
 <script>
 const $ = id => document.getElementById(id);
@@ -140,7 +189,7 @@ const MODELS = {
 };
 const IN = 640, MAX_SIDE = 2048, SCORE = 0.8, NMS = 0.3, MATCH = 0.363;
 // Same rules as the app: 36-45% shows as "Maybe", and a blurry or tiny selfie is refused.
-const STRONG = 0.45, MIN_SHARPNESS = 100, MIN_FACE_PX = 80;
+const STRONG = 0.45, MIN_SHARPNESS = 8, MIN_FACE_PX = 80;
 
 function sharpness(src, [x, y, w, h]) { // variance of the Laplacian on a 160px-wide grey face crop
   const W = 160, H = Math.max(3, Math.round(160 * h / w)), c = document.createElement('canvas');
@@ -301,7 +350,7 @@ $('photos').onchange = async e => {
       const badge = document.createElement('span'); badge.className = 'badge'; badge.textContent = `${embeddings.length} face${embeddings.length === 1 ? '' : 's'}`;
       tile.append(badge);
       $('grid').append(tile);
-      index.push({tile, badge, embeddings});
+      index.push({tile, badge, embeddings, file: files[i], thumb: img.src});
     } catch { /* skip unreadable files */ }
   }
   $('pbar').style.width = '100%';
@@ -340,7 +389,7 @@ $('snap').onclick = () => {
 };
 
 async function search(c) {
-  $('smsg').classList.remove('err'); $('smsg').textContent = 'Looking for you…'; $('result').style.display = 'none';
+  $('smsg').classList.remove('err'); $('smsg').textContent = 'Looking for you…'; $('result').style.display = 'none'; $('res').classList.add('hidden');
   let found = await detect(c);
   if (!found.length) { $('smsg').textContent = 'Looking closer for a small face…'; found = await detect(c, true); }
   $('sprev').src = c.toDataURL('image/jpeg', .7); $('sprev').style.display = 'block';
@@ -350,7 +399,7 @@ async function search(c) {
     $('smsg').textContent = 'Your face is too small in the photo. Get closer and try again.'; $('smsg').classList.add('err'); return;
   }
   if (sharpness(c, biggest.box) < MIN_SHARPNESS) {
-    $('smsg').textContent = 'This selfie looks blurry or smoothed by a filter. Turn off beauty mode or filters, hold still in good light, and try again.';
+    $('smsg').textContent = 'Your selfie is too blurry. Hold still in good light and try again.';
     $('smsg').classList.add('err'); return;
   }
   const me = await embed(c, biggest.lm);
@@ -360,11 +409,12 @@ async function search(c) {
   pv.getContext('2d').drawImage(c, bx + bw / 2 - side / 2, by + bh / 2 - side / 2, side, side, 0, 0, 192, 192);
   $('sprev').src = pv.toDataURL('image/jpeg', .8);
   let closest = -1;
-  let hits = 0, maybes = 0;
+  let hits = 0, maybes = 0; const matched = [];
   for (const p of index) {
     const best = p.embeddings.reduce((m, v) => Math.max(m, cosine(me, v)), -1);
     const hit = best >= MATCH, sure = best >= STRONG;
     hits += sure; maybes += hit && !sure; closest = Math.max(closest, best);
+    if (hit) matched.push({p, best, sure});
     p.tile.classList.toggle('hit', sure); p.tile.classList.toggle('maybe', hit && !sure); p.tile.classList.toggle('dim', !hit);
     p.badge.textContent = sure ? `Match ${(best * 100).toFixed(0)}%` : hit ? `Maybe ${(best * 100).toFixed(0)}%` : `${p.embeddings.length} face${p.embeddings.length === 1 ? '' : 's'}`;
   }
@@ -373,7 +423,7 @@ async function search(c) {
   $('result').innerHTML = hits || maybes
     ? `<small>Done, entirely on this device</small>` + (hits ? `Found you in ${hits} of ${index.length} photos 🎉` : 'No sure matches.') + (maybes ? ` ${maybes} more might be you (dashed outline): check them.` : '')
     : `<small>Done, entirely on this device · closest was ${Math.max(0, closest * 100).toFixed(0)}% (a match needs ${MATCH * 100 | 0}%)</small>No matches. Try a close-up, front-facing selfie in good light.`;
-  $('c1').scrollIntoView({behavior: 'smooth'});
+  renderResults(matched);
 }
 
 // Warn before a reload or close wipes the photos (nothing is stored, so they can't be restored).
@@ -383,6 +433,57 @@ $('agreeTry').onchange = e => {
   $('photos').disabled = !e.target.checked;
   $('choose').setAttribute('aria-disabled', !e.target.checked);
 };
+
+
+/* ---------- results UI ---------- */
+let RES = [], viewing = 0;
+function rSummary() {
+  const sure = RES.filter(r => r.sure).length, keep = RES.filter(r => r.kept === true).length;
+  const left = RES.filter(r => !r.sure && r.kept == null).length;
+  $('rCount').textContent = keep;
+  $('rFound').textContent = sure ? `Found you in ${sure} photo${sure > 1 ? 's' : ''}` : `${RES.length} photo${RES.length > 1 ? 's' : ''} might be you`;
+  $('rSub').textContent = `${keep} confirmed` + (left ? ` · ${left} to check below` : '') + ` · out of ${index.length} photos`;
+  $('rMaybeCount').textContent = left ? `${left} to check` : '';
+}
+function rCard(r, k) {
+  const f = document.createElement('figure'); f.className = 'ph ' + (r.sure ? 'sure' : 'maybe');
+  f.innerHTML = `<img alt="Matched photo" src="${r.p.thumb}"><span class="tag">${r.sure ? '✓ You' : 'Maybe ' + Math.round(r.best * 100) + '%'}</span>`;
+  if (!r.sure) {
+    const a = document.createElement('div'); a.className = 'act';
+    a.innerHTML = '<button class="yes" type="button">✓ Me</button><button class="no" type="button">Not me</button>';
+    a.querySelector('.yes').onclick = e => { e.stopPropagation(); r.kept = true; f.classList.add('confirmed'); f.classList.remove('removed'); f.querySelector('.tag').textContent = '✓ You'; rSummary(); };
+    a.querySelector('.no').onclick = e => { e.stopPropagation(); const off = f.classList.toggle('removed'); r.kept = off ? false : null; e.target.textContent = off ? 'Undo' : 'Not me'; rSummary(); };
+    f.append(a); r.fig = f;
+  }
+  f.onclick = () => { viewing = k; vShow(); $('viewer').classList.remove('hidden'); };
+  return f;
+}
+function renderResults(found) {
+  found.sort((a, b) => b.best - a.best);
+  RES = found.map(r => ({...r, kept: r.sure ? true : null}));
+  $('rSure').innerHTML = ''; $('rMaybe').innerHTML = '';
+  RES.forEach((r, k) => (r.sure ? $('rSure') : $('rMaybe')).append(rCard(r, k)));
+  $('rSureBox').classList.toggle('hidden', !RES.some(r => r.sure));
+  $('rMaybeBox').classList.toggle('hidden', RES.every(r => r.sure));
+  $('res').classList.toggle('hidden', !RES.length);
+  if (RES.length) { $('result').style.display = 'none'; rSummary(); $('res').scrollIntoView({behavior: 'smooth'}); }
+}
+function vShow() {
+  const r = RES[viewing];
+  $('vImg').src = r.p.thumb;
+  $('vPos').textContent = `${viewing + 1} of ${RES.length} · ${r.sure ? 'sure match' : 'maybe'} · ${Math.round(r.best * 100)}%`;
+  const mine = r.kept === true;
+  $('vMe').classList.toggle('hidden', mine);
+  $('vSave').classList.toggle('hidden', !mine);
+  if (mine && r.p.file) { $('vSave').href = URL.createObjectURL(r.p.file); $('vSave').download = r.p.file.name; }
+}
+$('vMe').onclick = () => { const r = RES[viewing]; if (r.fig) r.fig.querySelector('.yes').click(); vShow(); };
+$('vClose').onclick = () => $('viewer').classList.add('hidden');
+$('vPrev').onclick = () => { viewing = (viewing - 1 + RES.length) % RES.length; vShow(); };
+$('vNext').onclick = () => { viewing = (viewing + 1) % RES.length; vShow(); };
+$('viewer').onclick = e => { if (e.target.id === 'viewer') $('viewer').classList.add('hidden'); };
+addEventListener('keydown', e => { if ($('viewer').classList.contains('hidden')) return;
+  if (e.key === 'Escape') $('vClose').onclick(); if (e.key === 'ArrowLeft') $('vPrev').onclick(); if (e.key === 'ArrowRight') $('vNext').onclick(); });
 
 loadModels();
 </script>

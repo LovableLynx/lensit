@@ -27,8 +27,9 @@ MATCH_THRESHOLD = 0.363
 # In real-photo tests, wrong matches scored 38-41%; real ones with a good selfie scored 44-66%.
 # Between the two thresholds a photo is shown as "Maybe you?" rather than a sure match.
 STRONG_THRESHOLD = 0.45
-# A selfie whose face is this blurry (or small) loses the detail matching needs, so we ask for a retake.
-MIN_SHARPNESS = 100
+# Only refuse extremely blurry selfies: in tests, moderate blur barely changed match scores
+# (a real selfie with sharpness 49 matched correctly), so the bar is low on purpose.
+MIN_SHARPNESS = 8
 MIN_FACE_PX = 80
 MAX_SIDE = 1280  # downscale big camera photos; keeps an 8 GB laptop happy
 
@@ -108,7 +109,7 @@ class FaceEngine:
         crop = cv2.cvtColor(img[max(0, y):y + fh, max(0, x):x + fw], cv2.COLOR_BGR2GRAY)
         crop = cv2.resize(crop, (160, max(1, int(160 * fh / fw))))
         if cv2.Laplacian(crop, cv2.CV_64F).var() < MIN_SHARPNESS:
-            return None, ("Your selfie looks blurry or smoothed by a filter. Turn off beauty mode or filters, "
-                          "hold still in good light, and try again.")
+            return None, "Your selfie is too blurry. Hold still in good light and try again."
+
         f = self.recognizer.feature(self.recognizer.alignCrop(img, face)).flatten()
         return f / np.linalg.norm(f), None

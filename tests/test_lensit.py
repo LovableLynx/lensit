@@ -121,7 +121,7 @@ def test_blurry_selfie_is_refused(photos):
     assert me is not None and retake is None
     blurred = cv2.GaussianBlur(img, (0, 0), 2.5)  # like a beauty filter or heavy compression
     me, retake = engine.selfie(blurred)
-    assert me is None and "blurry" in retake
+    assert me is None and "blurry" in retake  # sharpness ~6, below the limit of 8
 
 
 def test_search_reports_sure_and_maybe(client, photos):
