@@ -551,12 +551,16 @@ footer .logo .wmark span,.cta ol b{color:var(--orange-light)!important}footer .l
 <script>
 /* ---------- illustrated photos ---------- */
 const GUESTS = [
-  {id: 'tolu', name: 'Tolu', role: 'The bride', skin: '#8d5524', cloth: '#f8f4ec'},
-  {id: 'femi', name: 'Femi', role: 'The groom', skin: '#5c3a1e', cloth: '#04124c'},
-  {id: 'bisi', name: 'Aunty Bisi', role: 'In orange aso-ebi', skin: '#a0663a', cloth: '#f87a1b'},
-  {id: 'kunle', name: 'Kunle', role: 'Best man', skin: '#6b4423', cloth: '#096'},
+  {id: 'tolu', name: 'Tolu', role: 'The bride', skin: '#8d5524', cloth: '#f8f4ec', hair: 'veil', trim: '#e9d8a6'},
+  {id: 'femi', name: 'Femi', role: 'The groom', skin: '#5c3a1e', cloth: '#04124c', hair: 'cap', trim: '#e9d8a6'},
+  {id: 'bisi', name: 'Aunty Bisi', role: 'In orange aso-ebi', skin: '#a0663a', cloth: '#f87a1b', hair: 'gele', trim: '#ffd59a'},
+  {id: 'kunle', name: 'Kunle', role: 'Best man', skin: '#6b4423', cloth: '#009966', hair: 'fade', trim: '#d6f5e8'},
 ];
-const EXTRA = [{skin: '#7a4b2a', cloth: '#2865ef'}, {skin: '#9a6239', cloth: '#ffb37d'}, {skin: '#4e321b', cloth: '#c4530a'}];
+const EXTRA = [
+  {skin: '#7a4b2a', cloth: '#2865ef', hair: 'braids', trim: '#cfe0ff'},
+  {skin: '#9a6239', cloth: '#ffb37d', hair: 'afro', trim: '#fff1e2'},
+  {skin: '#4e321b', cloth: '#c4530a', hair: 'gele', trim: '#ffd59a'},
+];
 const BGS = [['#ffe4cf', '#ffb37d'], ['#eaf0ff', '#9db8ff'], ['#e3f5ee', '#8fd3b8'], ['#fef7f3', '#f5cba7'], ['#e9e3ff', '#b7a7f5']];
 // which people appear in each of the 16 photos
 const PHOTOS = [
@@ -566,22 +570,59 @@ const PHOTOS = [
   ['femi'], ['tolu', 1], [2, 'kunle'], ['tolu', 'femi', 'bisi', 'kunle'],
 ];
 const look = p => typeof p === 'number' ? EXTRA[p] : GUESTS.find(g => g.id === p);
-function personSvg(people) {
-  const w = 100 / (people.length + 1);
-  return `<svg viewBox="0 0 100 75" preserveAspectRatio="xMidYMax meet">${people.map((p, i) => {
-    const l = look(p), x = w * (i + 1) - 13;
-    return `<g transform="translate(${x} 22)"><circle cx="13" cy="12" r="9" fill="${l.skin}"/><path d="M0 53c0-14 6-24 13-24s13 10 13 24z" fill="${l.cloth}"/></g>`;
-  }).join('')}</svg>`;
+
+// One illustrated guest, drawn in a 40x60 box (head centre at 20,20).
+function guestSvg(l, smile = true) {
+  const dark = '#2b1a10';
+  const hair = {
+    veil: `<path d="M6 22 Q20 2 34 22 L38 52 Q20 46 2 52 Z" fill="#fff" opacity=".85"/><path d="M9 18 Q20 6 31 18 Q20 13 9 18Z" fill="${dark}"/>`,
+    cap: `<path d="M9 13 Q20 3 31 13 L31 16 L9 16 Z" fill="${l.cloth}"/><path d="M9 15 L31 15" stroke="${l.trim}" stroke-width="1.5"/>`,
+    gele: `<path d="M5 15 Q12 -2 20 6 Q28 -2 35 15 Q28 9 20 12 Q12 9 5 15Z" fill="${l.cloth}"/><path d="M8 13 Q20 4 32 13" fill="none" stroke="${l.trim}" stroke-width="1.4"/><circle cx="20" cy="7" r="2.4" fill="${l.trim}"/>`,
+    fade: `<path d="M10 15 Q20 4 30 15 Q30 10 20 9 Q10 10 10 15Z" fill="${dark}"/>`,
+    braids: `<path d="M9 17 Q20 3 31 17 L32 34 M9 17 L8 34" fill="${dark}" stroke="${dark}" stroke-width="3" stroke-linecap="round"/>`,
+    afro: `<circle cx="20" cy="15" r="13" fill="${dark}"/>`,
+  }[l.hair] || '';
+  const back = l.hair === 'afro' ? hair : '';
+  const front = l.hair === 'afro' ? '' : hair;
+  return `${back}
+    <path d="M1 60 Q2 40 20 37 Q38 40 39 60Z" fill="${l.cloth}"/>
+    <path d="M14 38 L20 46 L26 38" fill="none" stroke="${l.trim}" stroke-width="2"/>
+    <rect x="16" y="29" width="8" height="8" rx="3" fill="${l.skin}"/>
+    <ellipse cx="20" cy="21" rx="10" ry="11" fill="${l.skin}"/>
+    ${front}
+    <circle cx="16.3" cy="21" r="1.25" fill="${dark}"/><circle cx="23.7" cy="21" r="1.25" fill="${dark}"/>
+    ${smile ? `<path d="M16.5 25.5 Q20 28.6 23.5 25.5" fill="none" stroke="${dark}" stroke-width="1.2" stroke-linecap="round"/>` : ''}
+    <circle cx="14" cy="24.5" r="1.6" fill="#ff8a7a" opacity=".35"/><circle cx="26" cy="24.5" r="1.6" fill="#ff8a7a" opacity=".35"/>`;
+}
+
+// A party "photo": string lights, confetti, floor, and the guests standing together.
+function personSvg(people, seed = 0) {
+  const n = people.length, w = 100 / (n + 1), scale = n > 3 ? 0.62 : 0.72;
+  const bulbs = Array.from({length: 9}, (_, k) => {
+    const x = 6 + k * 11, y = 7 + Math.sin(k * 1.3) * 2.2;
+    return `<circle cx="${x}" cy="${y}" r="1.5" fill="${['#ffd166', '#ff8fab', '#9be7ff', '#b8f2a1'][(k + seed) % 4]}"/>`;
+  }).join('');
+  const confetti = Array.from({length: 10}, (_, k) => {
+    const x = (k * 37 + seed * 13) % 96 + 2, y = (k * 23 + seed * 7) % 26 + 10;
+    return `<rect x="${x}" y="${y}" width="1.6" height="3" rx=".6" transform="rotate(${(k * 47) % 180} ${x} ${y})" fill="${['#f87a1b', '#2865ef', '#009966', '#ffd166'][k % 4]}" opacity=".55"/>`;
+  }).join('');
+  const guests = people.map((p, i) => {
+    const x = w * (i + 1) - 20 * scale;
+    return `<g transform="translate(${x} ${75 - 60 * scale}) scale(${scale})">${guestSvg(look(p))}</g>`;
+  }).join('');
+  return `<svg viewBox="0 0 100 75" preserveAspectRatio="xMidYMid slice">
+    <path d="M0 6 Q25 11 50 6 Q75 11 100 6" fill="none" stroke="#04124c" stroke-opacity=".25" stroke-width=".6"/>${bulbs}${confetti}
+    <ellipse cx="50" cy="78" rx="70" ry="14" fill="#fff" opacity=".35"/>${guests}</svg>`;
 }
 function tile(people, i, wm) {
   const [c1, c2] = BGS[i % BGS.length];
-  return `<div class="ph" style="--c1:${c1};--c2:${c2}">${personSvg(people)}${wm ? '<span class="wm">PREVIEW</span>' : ''}</div>`;
+  return `<div class="ph" style="--c1:${c1};--c2:${c2}">${personSvg(people, i)}${wm ? '<span class="wm">PREVIEW</span>' : ''}</div>`;
 }
 heroThumbs.innerHTML = [0, 3, 6, 13].map(i => tile(PHOTOS[i], i, true)).join('');
 pgrid.innerHTML = PHOTOS.map((p, i) => tile(p, i, false)).join('');
 
 /* ---------- live demo ---------- */
-guestList.innerHTML = GUESTS.map(g => `<button class="guest" data-id="${g.id}"><span class="av" style="background:var(--orange-wash)"><svg width="30" height="40" viewBox="0 0 40 60"><circle cx="20" cy="16" r="11" fill="${g.skin}"/><path d="M2 60c0-14 8-24 18-24s18 10 18 24z" fill="${g.cloth}" stroke="#e4e5e8"/></svg></span><span>${g.name}<small>${g.role}</small></span></button>`).join('');
+guestList.innerHTML = GUESTS.map(g => `<button class="guest" data-id="${g.id}"><span class="av" style="background:var(--orange-wash)"><svg width="34" height="44" viewBox="0 0 40 60">${guestSvg(g)}</svg></span><span>${g.name}<small>${g.role}</small></span></button>`).join('');
 const tiles = [...pgrid.children];
 let busy = false;
 guestList.onclick = e => {
