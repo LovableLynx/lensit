@@ -173,7 +173,8 @@ function updateSummary() {
   const keep = kept.filter(k => k === true).length;
   $('count').textContent = keep;
   $('found').textContent = n ? `Found ${n} photo${n > 1 ? 's' : ''} of you` : `${m} photo${m > 1 ? 's' : ''} might be you`;
-  $('sub').textContent = m ? `${keep} photo${keep === 1 ? '' : 's'} in your download · ${m} to check below` : 'All sure matches · watermarked previews';
+  const left = R.sure.filter((sure, i) => !sure && kept[i] === null).length;
+  $('sub').textContent = left ? `${keep} photo${keep === 1 ? '' : 's'} in your download · ${left} to check below` : `${keep} photo${keep === 1 ? '' : 's'} in your download · watermarked previews`;
   const only = kept.map((k, i) => k === true ? i : null).filter(i => i !== null);
   $('dl').href = `/download/${R.token}?only=${only.join(',')}`;
   $('dl').setAttribute('aria-disabled', !only.length);
