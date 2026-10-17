@@ -49,6 +49,7 @@ h1{font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--navy);letter-spac
 .tile img{width:100%;height:100%;object-fit:cover;display:block}
 .tile .badge{position:absolute;left:6px;bottom:6px;background:rgba(4,18,76,.8);color:#fff;font-size:.72rem;font-weight:700;padding:3px 8px;border-radius:999px}
 .tile.hit{box-shadow:0 0 0 3px var(--orange);transform:scale(1.02)}
+.tile.maybe{outline:3px dashed var(--orange);outline-offset:-3px}
 .tile.hit .badge{background:var(--orange)}
 .tile.dim{opacity:.25}
 .selfie{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:12px}
@@ -138,6 +139,21 @@ const MODELS = {
   sface: {url: 'models/sface.onnx', sha: '0ba9fbfa01b5270c96627c4ef784da859931e02f04419c829e83484087c34e79'},
 };
 const IN = 640, MAX_SIDE = 2048, SCORE = 0.8, NMS = 0.3, MATCH = 0.363;
+// Same rules as the app: 36-45% shows as "Maybe", and a blurry or tiny selfie is refused.
+const STRONG = 0.45, MIN_SHARPNESS = 100, MIN_FACE_PX = 80;
+
+function sharpness(src, [x, y, w, h]) { // variance of the Laplacian on a 160px-wide grey face crop
+  const W = 160, H = Math.max(3, Math.round(160 * h / w)), c = document.createElement('canvas');
+  c.width = W; c.height = H; const ctx = c.getContext('2d'); ctx.drawImage(src, x, y, w, h, 0, 0, W, H);
+  const d = ctx.getImageData(0, 0, W, H).data, g = new Float32Array(W * H);
+  for (let i = 0; i < W * H; i++) g[i] = .299 * d[4 * i] + .587 * d[4 * i + 1] + .114 * d[4 * i + 2];
+  let n = 0, sum = 0, sq = 0;
+  for (let yy = 1; yy < H - 1; yy++) for (let xx = 1; xx < W - 1; xx++) {
+    const i = yy * W + xx, v = g[i - 1] + g[i + 1] + g[i - W] + g[i + W] - 4 * g[i];
+    n++; sum += v; sq += v * v;
+  }
+  return sq / n - (sum / n) ** 2;
+}
 // Reference landmark positions for a 112x112 aligned face (from OpenCV's FaceRecognizerSF).
 const DST = [[38.2946, 51.6963], [73.5318, 51.5014], [56.0252, 71.7366], [41.5493, 92.3655], [70.7299, 92.2041]];
 let det, rec;
@@ -330,6 +346,13 @@ async function search(c) {
   $('sprev').src = c.toDataURL('image/jpeg', .7); $('sprev').style.display = 'block';
   if (!found.length) { $('smsg').textContent = 'No face found. Try again facing the camera in better light.'; $('smsg').classList.add('err'); return; }
   const biggest = found.reduce((a, b) => a.box[2] * a.box[3] > b.box[2] * b.box[3] ? a : b);
+  if (biggest.box[2] * Math.min(1, 1280 / Math.max(c.width, c.height)) < MIN_FACE_PX) {
+    $('smsg').textContent = 'Your face is too small in the photo. Get closer and try again.'; $('smsg').classList.add('err'); return;
+  }
+  if (sharpness(c, biggest.box) < MIN_SHARPNESS) {
+    $('smsg').textContent = 'This selfie looks blurry or smoothed by a filter. Turn off beauty mode or filters, hold still in good light, and try again.';
+    $('smsg').classList.add('err'); return;
+  }
   const me = await embed(c, biggest.lm);
   // Preview zooms in on the face that was used, so the guest can see what was matched.
   const [bx, by, bw, bh] = biggest.box, pad = Math.max(bw, bh) * 0.6, side = Math.max(bw, bh) + 2 * pad;
@@ -337,17 +360,18 @@ async function search(c) {
   pv.getContext('2d').drawImage(c, bx + bw / 2 - side / 2, by + bh / 2 - side / 2, side, side, 0, 0, 192, 192);
   $('sprev').src = pv.toDataURL('image/jpeg', .8);
   let closest = -1;
-  let hits = 0;
+  let hits = 0, maybes = 0;
   for (const p of index) {
     const best = p.embeddings.reduce((m, v) => Math.max(m, cosine(me, v)), -1);
-    const hit = best >= MATCH; hits += hit; closest = Math.max(closest, best);
-    p.tile.classList.toggle('hit', hit); p.tile.classList.toggle('dim', !hit);
-    p.badge.textContent = hit ? `Match ${(best * 100).toFixed(0)}%` : `${p.embeddings.length} face${p.embeddings.length === 1 ? '' : 's'}`;
+    const hit = best >= MATCH, sure = best >= STRONG;
+    hits += sure; maybes += hit && !sure; closest = Math.max(closest, best);
+    p.tile.classList.toggle('hit', sure); p.tile.classList.toggle('maybe', hit && !sure); p.tile.classList.toggle('dim', !hit);
+    p.badge.textContent = sure ? `Match ${(best * 100).toFixed(0)}%` : hit ? `Maybe ${(best * 100).toFixed(0)}%` : `${p.embeddings.length} face${p.embeddings.length === 1 ? '' : 's'}`;
   }
   $('smsg').textContent = '';
   $('result').style.display = 'block';
-  $('result').innerHTML = hits
-    ? `<small>Done, entirely on this device</small>Found you in ${hits} of ${index.length} photos 🎉`
+  $('result').innerHTML = hits || maybes
+    ? `<small>Done, entirely on this device</small>` + (hits ? `Found you in ${hits} of ${index.length} photos 🎉` : 'No sure matches.') + (maybes ? ` ${maybes} more might be you (dashed outline): check them.` : '')
     : `<small>Done, entirely on this device · closest was ${Math.max(0, closest * 100).toFixed(0)}% (a match needs ${MATCH * 100 | 0}%)</small>No matches. Try a close-up, front-facing selfie in good light.`;
   $('c1').scrollIntoView({behavior: 'smooth'});
 }

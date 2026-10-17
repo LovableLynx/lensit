@@ -97,8 +97,9 @@ def test_search_requires_consent(client, photos):
 
 
 def test_search_preview_and_download(client, photos):
+    # A clear, close face works as a selfie (an action shot with a tiny, blurred face is refused).
     r = client.post("/search", data={"consent": "yes"},
-                    files={"selfie": ("s.jpg", (photos / "messi5.jpg").read_bytes(), "image/jpeg")})
+                    files={"selfie": ("s.jpg", (photos / "lena.jpg").read_bytes(), "image/jpeg")})
     assert r.status_code == 200 and r.json()["count"] == 1
     token = r.json()["token"]
     assert client.get(f"/preview/{token}/0").headers["content-type"] == "image/jpeg"
@@ -109,3 +110,22 @@ def test_search_preview_and_download(client, photos):
 def test_non_image_is_rejected(client):
     r = client.post("/search", data={"consent": "yes"}, files={"selfie": ("x.txt", b"hello", "text/plain")})
     assert r.status_code == 400
+
+
+def test_blurry_selfie_is_refused(photos):
+    import cv2
+    from lensit.faces import FaceEngine
+    engine = FaceEngine()
+    img = cv2.imread(str(photos / "lena.jpg"))
+    me, retake = engine.selfie(img)
+    assert me is not None and retake is None
+    blurred = cv2.GaussianBlur(img, (0, 0), 2.5)  # like a beauty filter or heavy compression
+    me, retake = engine.selfie(blurred)
+    assert me is None and "blurry" in retake
+
+
+def test_search_reports_sure_and_maybe(client, photos):
+    r = client.post("/search", data={"consent": "yes"},
+                    files={"selfie": ("s.jpg", (photos / "lena.jpg").read_bytes(), "image/jpeg")})
+    j = r.json()
+    assert r.status_code == 200 and j["count"] == len(j["sure"]) and j["strong"] == sum(j["sure"])

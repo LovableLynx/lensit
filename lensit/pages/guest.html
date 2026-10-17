@@ -29,7 +29,10 @@
 .result-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:24px 0 12px}
 .result-head h2{font-size:1.3rem}
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.grid figure{margin:0;position:relative}
 .grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:16px;display:block;background:var(--blue-light)}
+.grid figure.maybe img{opacity:.8}
+.grid figure span{position:absolute;left:8px;bottom:8px;background:rgba(29,31,32,.82);color:#fff;font-size:.75rem;font-weight:700;padding:4px 9px;border-radius:999px}
 .empty{text-align:center;padding:28px 20px}
 .empty .icon{font-size:2.4rem}
 .foot{text-align:center;font-size:.8rem;color:var(--muted);margin-top:28px}
@@ -81,7 +84,7 @@
     <section class="hidden" id="results">
       <div class="result-head"><h2 id="found"></h2><a class="btn navy" id="dl">⬇ Download all</a></div>
       <div class="grid" id="grid"></div>
-      <p class="hint">Previews are watermarked. The download contains the full-quality photos.</p>
+      <p class="hint">Previews are watermarked. "Maybe you?" photos are less certain matches, so check them. The download contains the full-quality photos.</p>
     </section>
 
     <div class="card empty hidden" id="none">
@@ -112,10 +115,19 @@ async function search(file) {
     const r = await fetch('/search', {method: 'POST', body: fd}); const j = await r.json();
     if (!r.ok) { $('err').textContent = j.detail; $('err').classList.remove('hidden'); return; }
     if (!j.count) { $('none').classList.remove('hidden'); return; }
-    $('found').textContent = `🎉 Found ${j.count} photo${j.count > 1 ? 's' : ''} of you`;
+    const maybe = j.count - j.strong;
+    $('found').textContent = j.strong
+      ? `🎉 Found ${j.strong} photo${j.strong > 1 ? 's' : ''} of you` + (maybe ? ` (+${maybe} maybe)` : '')
+      : `🤔 ${j.count} photo${j.count > 1 ? 's' : ''} might be you`;
     $('dl').href = `/download/${j.token}`;
     $('grid').innerHTML = '';
-    for (let i = 0; i < j.count; i++) { const im = new Image(); im.loading = 'lazy'; im.alt = 'Your photo ' + (i + 1); im.src = `/preview/${j.token}/${i}`; $('grid').append(im); }
+    for (let i = 0; i < j.count; i++) {
+      const fig = document.createElement('figure'); fig.className = j.sure[i] ? 'sure' : 'maybe';
+      const im = new Image(); im.loading = 'lazy'; im.alt = 'Your photo ' + (i + 1); im.src = `/preview/${j.token}/${i}`;
+      fig.append(im);
+      if (!j.sure[i]) { const tag = document.createElement('span'); tag.textContent = 'Maybe you?'; fig.append(tag); }
+      $('grid').append(fig);
+    }
     $('results').classList.remove('hidden');
     $('results').scrollIntoView({behavior: 'smooth'});
   } catch {

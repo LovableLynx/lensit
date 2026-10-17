@@ -71,6 +71,10 @@ class EventIndex:
         return time.time() > self.meta["expires_at"]
 
     def match(self, selfie_vec: np.ndarray) -> list[int]:
+        return [pid for pid, _ in self.match_scored(selfie_vec)]
+
+    def match_scored(self, selfie_vec: np.ndarray) -> list[tuple[int, float]]:
+        """(photo id, best face score) for every photo at or above the match threshold, best first."""
         if len(self.vecs) == 0:
             return []
         sims = self.vecs @ selfie_vec
@@ -78,7 +82,7 @@ class EventIndex:
         for idx in np.nonzero(sims >= MATCH_THRESHOLD)[0]:
             pid = int(self.owners[idx])
             best[pid] = max(best.get(pid, 0), float(sims[idx]))
-        return sorted(best, key=best.get, reverse=True)
+        return sorted(best.items(), key=lambda kv: kv[1], reverse=True)
 
     def path(self, pid: int) -> Path:
         return self.photo_dir / self.photos[pid]

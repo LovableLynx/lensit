@@ -16,7 +16,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse, Response, Streamin
 from fastapi.staticfiles import StaticFiles
 from PIL import Image, ImageDraw, ImageFont
 
-from .faces import FaceEngine
+from .faces import STRONG_THRESHOLD, FaceEngine
 from .index import EXTS, EventIndex, build_index, purge
 
 SESSION_TTL = 30 * 60  # guest results live 30 min, in memory only
@@ -189,18 +189,19 @@ async def search(selfie: UploadFile = File(...), consent: str = Form("")):
         raise HTTPException(503, "The photographer hasn't loaded this event yet.")
     data = await selfie.read()
     try:
-        faces = engine.embeddings_from_bytes(data)
+        me, retake = engine.selfie(engine.decode(data))
     except ValueError:
         raise HTTPException(400, "That file isn't an image.")
     finally:
         del data
-    if len(faces) == 0:
-        raise HTTPException(400, "No face found - try again in better light.")
-    # Use the first detected face; the embedding is discarded after matching.
-    matches = index.match(faces[0])
+    if retake:
+        raise HTTPException(400, retake)
+    # The embedding is discarded after matching.
+    scored = index.match_scored(me)
     token = secrets.token_urlsafe(16)
-    sessions[token] = (time.time(), matches)
-    return {"token": token, "count": len(matches)}
+    sessions[token] = (time.time(), [pid for pid, _ in scored])
+    sure = [s >= STRONG_THRESHOLD for _, s in scored]
+    return {"token": token, "count": len(scored), "strong": sum(sure), "sure": sure}
 
 
 @app.get("/preview/{token}/{i}")

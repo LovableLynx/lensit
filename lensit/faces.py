@@ -24,6 +24,12 @@ MODELS = {
 }
 # Cosine-similarity threshold recommended by OpenCV for SFace.
 MATCH_THRESHOLD = 0.363
+# In real-photo tests, wrong matches scored 38-41%; real ones with a good selfie scored 44-66%.
+# Between the two thresholds a photo is shown as "Maybe you?" rather than a sure match.
+STRONG_THRESHOLD = 0.45
+# A selfie whose face is this blurry (or small) loses the detail matching needs, so we ask for a retake.
+MIN_SHARPNESS = 100
+MIN_FACE_PX = 80
 MAX_SIDE = 1280  # downscale big camera photos; keeps an 8 GB laptop happy
 
 
@@ -78,7 +84,31 @@ class FaceEngine:
         return np.array(feats, np.float32)
 
     def embeddings_from_bytes(self, data: bytes) -> np.ndarray:
+        return self.embeddings(self.decode(data))
+
+    @staticmethod
+    def decode(data: bytes):
         img = cv2.imdecode(np.frombuffer(data, np.uint8), cv2.IMREAD_COLOR)
         if img is None:
             raise ValueError("Not an image")
-        return self.embeddings(img)
+        return img
+
+    def selfie(self, img):
+        """Embedding of the selfie's biggest face, plus a retake reason if it's too small or blurry."""
+        img = self._shrink(img)
+        h, w = img.shape[:2]
+        self.detector.setInputSize((w, h))
+        _, faces = self.detector.detect(img)
+        if faces is None:
+            return None, "No face found. Face the camera in good light and try again."
+        face = max(faces, key=lambda f: f[2] * f[3])
+        x, y, fw, fh = (int(v) for v in face[:4])
+        if fw < MIN_FACE_PX:
+            return None, "Your face is too small in the photo. Hold the phone closer and try again."
+        crop = cv2.cvtColor(img[max(0, y):y + fh, max(0, x):x + fw], cv2.COLOR_BGR2GRAY)
+        crop = cv2.resize(crop, (160, max(1, int(160 * fh / fw))))
+        if cv2.Laplacian(crop, cv2.CV_64F).var() < MIN_SHARPNESS:
+            return None, ("Your selfie looks blurry or smoothed by a filter. Turn off beauty mode or filters, "
+                          "hold still in good light, and try again.")
+        f = self.recognizer.feature(self.recognizer.alignCrop(img, face)).flatten()
+        return f / np.linalg.norm(f), None
