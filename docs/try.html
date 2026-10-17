@@ -284,6 +284,29 @@ function overlaps(a, b) { // IoU, or mostly-contained (a face cut at a tile edge
   return i / (a[2] * a[3] + b[2] * b[3] - i) >= NMS || i / Math.min(a[2] * a[3], b[2] * b[3]) > 0.6;
 }
 
+function rotated(src, deg) { // rotate a canvas by any angle, growing it so nothing is cut off
+  const r = deg * Math.PI / 180, cos = Math.abs(Math.cos(r)), sin = Math.abs(Math.sin(r));
+  const c = document.createElement('canvas');
+  c.width = Math.round(src.width * cos + src.height * sin); c.height = Math.round(src.width * sin + src.height * cos);
+  const ctx = c.getContext('2d'); ctx.translate(c.width / 2, c.height / 2); ctx.rotate(r); ctx.drawImage(src, -src.width / 2, -src.height / 2);
+  return c;
+}
+
+// The detector copes with tilts of about +/-30 degrees, so these steps find a face at any angle.
+const ROTATIONS = [90, -90, 180, 45, -45, 135, -135];
+
+// Find faces upright first; if none, try the photo turned. Each face remembers which canvas it was found on.
+async function detectAnyAngle(src, fine = false) {
+  let faces = await detect(src, fine);
+  if (faces.length) return faces.map(f => ({...f, src}));
+  for (const deg of ROTATIONS) {
+    const r = rotated(src, deg);
+    faces = await detect(r, fine);
+    if (faces.length) return faces.map(f => ({...f, src: r}));
+  }
+  return [];
+}
+
 async function detect(src, fine = false) {
   const W = src.width, H = src.height, faces = await detectRegion(src, 0, 0, W, H);
   if (Math.max(W, H) > 900) {
@@ -340,9 +363,9 @@ $('photos').onchange = async e => {
     $('pbar').style.width = (100 * i / files.length) + '%';
     try {
       const c = await toCanvas(files[i]);
-      const found = await detect(c);
+      const found = await detectAnyAngle(c);
       const embeddings = [];
-      for (const f of found) embeddings.push(await embed(c, f.lm));
+      for (const f of found) embeddings.push(await embed(f.src, f.lm));
       faces += embeddings.length;
       const tile = document.createElement('div'); tile.className = 'tile';
       const img = new Image(); img.src = c.toDataURL('image/jpeg', .7); img.alt = files[i].name;
@@ -355,7 +378,7 @@ $('photos').onchange = async e => {
   }
   $('pbar').style.width = '100%';
   $('pmsg').textContent = `✓ ${index.length} photos, ${faces} faces found. Add more photos, or take a selfie below.`;
-  if (faces) $('c2').classList.remove('off');
+  if (faces) { $('c2').classList.remove('off'); $('c2').scrollIntoView({behavior: 'smooth', block: 'start'}); } // next step: the selfie
   e.target.value = '';
 };
 
@@ -375,6 +398,7 @@ $('camBtn').onclick = async () => {
     stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: 'user', width: {ideal: 1280}}, audio: false});
     $('video').srcObject = stream; await $('video').play();
     $('cam').classList.add('on'); $('smsg').textContent = 'Look at the camera, then press Capture.';
+    $('cam').scrollIntoView({behavior: 'smooth', block: 'center'}); // bring the camera and Capture button into view
   } catch {
     $('smsg').textContent = "Couldn't open the camera. Allow camera access, or use \"Choose a photo\" instead."; $('smsg').classList.add('err');
   }
@@ -390,23 +414,23 @@ $('snap').onclick = () => {
 
 async function search(c) {
   $('smsg').classList.remove('err'); $('smsg').textContent = 'Looking for you…'; $('result').style.display = 'none'; $('res').classList.add('hidden');
-  let found = await detect(c);
-  if (!found.length) { $('smsg').textContent = 'Looking closer for a small face…'; found = await detect(c, true); }
+  let found = await detectAnyAngle(c);
+  if (!found.length) { $('smsg').textContent = 'Looking closer for a small face…'; found = (await detect(c, true)).map(f => ({...f, src: c})); }
   $('sprev').src = c.toDataURL('image/jpeg', .7); $('sprev').style.display = 'block';
   if (!found.length) { $('smsg').textContent = 'No face found. Try again facing the camera in better light.'; $('smsg').classList.add('err'); return; }
   const biggest = found.reduce((a, b) => a.box[2] * a.box[3] > b.box[2] * b.box[3] ? a : b);
-  if (biggest.box[2] * Math.min(1, 1280 / Math.max(c.width, c.height)) < MIN_FACE_PX) {
+  if (biggest.box[2] * Math.min(1, 1280 / Math.max(biggest.src.width, biggest.src.height)) < MIN_FACE_PX) {
     $('smsg').textContent = 'Your face is too small in the photo. Get closer and try again.'; $('smsg').classList.add('err'); return;
   }
-  if (sharpness(c, biggest.box) < MIN_SHARPNESS) {
+  if (sharpness(biggest.src, biggest.box) < MIN_SHARPNESS) {
     $('smsg').textContent = 'Your selfie is too blurry. Hold still in good light and try again.';
     $('smsg').classList.add('err'); return;
   }
-  const me = await embed(c, biggest.lm);
+  const me = await embed(biggest.src, biggest.lm);
   // Preview zooms in on the face that was used, so the guest can see what was matched.
   const [bx, by, bw, bh] = biggest.box, pad = Math.max(bw, bh) * 0.6, side = Math.max(bw, bh) + 2 * pad;
   const pv = document.createElement('canvas'); pv.width = pv.height = 192;
-  pv.getContext('2d').drawImage(c, bx + bw / 2 - side / 2, by + bh / 2 - side / 2, side, side, 0, 0, 192, 192);
+  pv.getContext('2d').drawImage(biggest.src, bx + bw / 2 - side / 2, by + bh / 2 - side / 2, side, side, 0, 0, 192, 192);
   $('sprev').src = pv.toDataURL('image/jpeg', .8);
   let closest = -1;
   let hits = 0, maybes = 0; const matched = [];

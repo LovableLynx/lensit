@@ -142,3 +142,14 @@ def test_single_photo_and_partial_download(client, photos):
     z = zipfile.ZipFile(io.BytesIO(client.get(f"/download/{token}?only=0").content))
     assert len(z.namelist()) == 1
     assert client.get(f"/photo/{token}/99").status_code == 404
+
+
+@pytest.mark.parametrize("angle", [90, -90, 180, 45, 135])
+def test_rotated_photo_still_matches(photos, angle):
+    import cv2
+    from lensit.faces import FaceEngine
+    engine = FaceEngine()
+    img = cv2.imread(str(photos / "lena.jpg"))
+    me = engine.embeddings(img)[0]
+    turned = engine.embeddings(engine._rotate(img, angle))
+    assert len(turned) == 1 and float(turned[0] @ me) > 0.45

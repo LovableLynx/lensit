@@ -69,12 +69,47 @@ class FaceEngine:
             img = cv2.resize(img, (int(w * scale), int(h * scale)))
         return img
 
-    def embeddings(self, img) -> np.ndarray:
-        """Return an (n, 128) array of L2-normalised face embeddings."""
-        img = self._shrink(img)
+    def _detect(self, img):
         h, w = img.shape[:2]
         self.detector.setInputSize((w, h))
-        _, faces = self.detector.detect(img)
+        return self.detector.detect(img)[1]
+
+    # The detector copes with tilts of about +/-30 degrees, so these steps cover a face at any angle.
+    ROTATIONS = (90, -90, 180, 45, -45, 135, -135)
+
+    @staticmethod
+    def _rotate(img, angle):
+        """Rotate by any angle, growing the canvas so nothing is cut off."""
+        if angle == 90:
+            return cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        if angle == -90:
+            return cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+        if angle == 180:
+            return cv2.rotate(img, cv2.ROTATE_180)
+        h, w = img.shape[:2]
+        m = cv2.getRotationMatrix2D((w / 2, h / 2), angle, 1.0)
+        cos, sin = abs(m[0, 0]), abs(m[0, 1])
+        nw, nh = int(h * sin + w * cos), int(h * cos + w * sin)
+        m[0, 2] += nw / 2 - w / 2
+        m[1, 2] += nh / 2 - h / 2
+        return cv2.warpAffine(img, m, (nw, nh))
+
+    def _detect_any_rotation(self, img):
+        """Find faces; if none are upright, try the photo at other angles
+        (phone photos are often stored sideways, and people tilt their heads)."""
+        faces = self._detect(img)
+        if faces is not None:
+            return img, faces
+        for angle in self.ROTATIONS:
+            rotated = self._shrink(self._rotate(img, angle))
+            faces = self._detect(rotated)
+            if faces is not None:
+                return rotated, faces
+        return img, None
+
+    def embeddings(self, img) -> np.ndarray:
+        """Return an (n, 128) array of L2-normalised face embeddings."""
+        img, faces = self._detect_any_rotation(self._shrink(img))
         if faces is None:
             return np.zeros((0, 128), np.float32)
         feats = []
@@ -96,10 +131,7 @@ class FaceEngine:
 
     def selfie(self, img):
         """Embedding of the selfie's biggest face, plus a retake reason if it's too small or blurry."""
-        img = self._shrink(img)
-        h, w = img.shape[:2]
-        self.detector.setInputSize((w, h))
-        _, faces = self.detector.detect(img)
+        img, faces = self._detect_any_rotation(self._shrink(img))
         if faces is None:
             return None, "No face found. Face the camera in good light and try again."
         face = max(faces, key=lambda f: f[2] * f[3])
