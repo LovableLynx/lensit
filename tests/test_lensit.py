@@ -129,3 +129,16 @@ def test_search_reports_sure_and_maybe(client, photos):
                     files={"selfie": ("s.jpg", (photos / "lena.jpg").read_bytes(), "image/jpeg")})
     j = r.json()
     assert r.status_code == 200 and j["count"] == len(j["sure"]) and j["strong"] == sum(j["sure"])
+
+
+def test_single_photo_and_partial_download(client, photos):
+    import io
+    import zipfile
+    r = client.post("/search", data={"consent": "yes"},
+                    files={"selfie": ("s.jpg", (photos / "lena.jpg").read_bytes(), "image/jpeg")})
+    token = r.json()["token"]
+    one = client.get(f"/photo/{token}/0")
+    assert one.status_code == 200 and "attachment" in one.headers["content-disposition"]
+    z = zipfile.ZipFile(io.BytesIO(client.get(f"/download/{token}?only=0").content))
+    assert len(z.namelist()) == 1
+    assert client.get(f"/photo/{token}/99").status_code == 404

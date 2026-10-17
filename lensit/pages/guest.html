@@ -26,13 +26,40 @@
 .buttons label{cursor:pointer}
 .buttons input{display:none}
 .searching{display:flex;align-items:center;gap:12px;font-weight:700;color:var(--navy);padding:18px;background:var(--white);border:1px solid var(--line);border-radius:18px;margin-top:16px}
-.result-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:24px 0 12px}
-.result-head h2{font-size:1.3rem}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.grid figure{margin:0;position:relative}
-.grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:16px;display:block;background:var(--blue-light)}
-.grid figure.maybe img{opacity:.8}
-.grid figure span{position:absolute;left:8px;bottom:8px;background:rgba(29,31,32,.82);color:#fff;font-size:.75rem;font-weight:700;padding:4px 9px;border-radius:999px}
+.summary{margin-top:20px;background:var(--white);border:1px solid var(--line);border-radius:24px;padding:22px;box-shadow:var(--shadow)}
+.summary .top{display:flex;align-items:center;gap:14px}
+.summary .count{width:58px;height:58px;border-radius:18px;background:var(--orange);color:#fff;display:grid;place-items:center;font-weight:800;font-size:1.6rem;flex:none}
+.summary h2{font-size:1.3rem;margin:0}
+.summary .sub{margin:2px 0 0;color:var(--muted);font-size:.92rem}
+.summary .actions{display:grid;grid-template-columns:3fr 2fr;gap:10px;margin-top:16px}
+.summary .actions .btn{white-space:normal;padding:13px 12px;text-align:center;line-height:1.2}
+.sec{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:24px 2px 10px}
+.sec h3{margin:0;color:var(--navy);font-size:1.05rem}
+.sec span{color:var(--muted);font-size:.85rem}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.ph{margin:0;position:relative;border-radius:18px;overflow:hidden;background:var(--blue-light);cursor:zoom-in;transition:transform .15s,opacity .2s}
+.ph:active{transform:scale(.98)}
+.ph img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.ph .tag{position:absolute;left:8px;top:8px;background:rgba(29,31,32,.8);color:#fff;font-size:.72rem;font-weight:700;padding:4px 9px;border-radius:999px}
+.ph.sure .tag{background:var(--orange)}
+.ph .act{position:absolute;left:8px;right:8px;bottom:8px;display:flex;gap:6px}
+.ph .act button{flex:1;border:0;border-radius:999px;padding:8px 6px;font-weight:700;font-size:.8rem;cursor:pointer;font-family:inherit}
+.ph .yes{background:var(--white);color:var(--navy)}
+.ph .no{background:rgba(29,31,32,.8);color:#fff}
+.ph.confirmed{box-shadow:0 0 0 3px var(--orange)}
+.ph.confirmed .act{display:none}
+.ph.removed{opacity:.35}
+.ph.removed .act .yes{display:none}
+.ph.removed .act .no::before{content:"↺ "}
+.maybe-note{background:var(--cream);border-radius:14px;padding:10px 12px;font-size:.85rem;color:var(--ink);margin:0 0 10px}
+.viewer{position:fixed;inset:0;background:rgba(10,12,20,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;z-index:50}
+.viewer img{max-width:100%;max-height:72vh;border-radius:14px}
+.viewer .bar{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;justify-content:center}
+.viewer .btn.ghost{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.3)}
+.viewer .nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.15);color:#fff;font-size:1.3rem;cursor:pointer}
+.viewer .prev{left:10px}.viewer .next{right:10px}
+.viewer .close{position:absolute;top:14px;right:14px;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.15);color:#fff;font-size:1.2rem;cursor:pointer}
+.viewer .pos{color:rgba(255,255,255,.7);font-size:.85rem;margin-top:8px}
 .empty{text-align:center;padding:28px 20px}
 .empty .icon{font-size:2.4rem}
 .foot{text-align:center;font-size:.8rem;color:var(--muted);margin-top:28px}
@@ -82,10 +109,25 @@
     <div class="alert err hidden" id="err"></div>
 
     <section class="hidden" id="results">
-      <div class="result-head"><h2 id="found"></h2><a class="btn navy" id="dl">⬇ Download all</a></div>
-      <div class="grid" id="grid"></div>
-      <p class="hint">Previews are watermarked. "Maybe you?" photos are less certain matches, so check them. The download contains the full-quality photos.</p>
+      <div class="summary">
+        <div class="top"><div class="count" id="count">0</div><div><h2 id="found"></h2><p class="sub" id="sub"></p></div></div>
+        <div class="actions"><a class="btn primary block" id="dl">⬇ Download my photos</a><button class="btn ghost" id="again" type="button">↺ New selfie</button></div>
+      </div>
+      <div id="sureBox"><div class="sec"><h3>Your photos</h3><span>Tap a photo to view</span></div><div class="grid" id="sureGrid"></div></div>
+      <div id="maybeBox"><div class="sec"><h3>Maybe you?</h3><span id="maybeCount"></span></div>
+        <p class="maybe-note">These are less certain, so they're not in your download yet. Tap <b>✓ Me</b> to add a photo, or <b>Not me</b> to hide it.</p>
+        <div class="grid" id="maybeGrid"></div></div>
+      <p class="hint">Previews are watermarked. Your download has the full-quality photos.</p>
     </section>
+
+    <div class="viewer hidden" id="viewer" role="dialog" aria-label="Photo viewer">
+      <button class="close" id="vClose" type="button" aria-label="Close">✕</button>
+      <button class="nav prev" id="vPrev" type="button" aria-label="Previous">‹</button>
+      <img id="vImg" alt="Your photo">
+      <button class="nav next" id="vNext" type="button" aria-label="Next">›</button>
+      <div class="pos" id="vPos"></div>
+      <div class="bar"><button class="btn ghost" id="vMe" type="button">✓ This is me</button><a class="btn primary" id="vDl">⬇ Download this photo</a></div>
+    </div>
 
     <div class="card empty hidden" id="none">
       <div class="icon">🔍</div>
@@ -108,33 +150,83 @@ $('agree').onchange = e => ['snap', 'pick'].forEach(id => $(id).setAttribute('ar
 
 async function search(file) {
   if (!file) return;
-  ['results', 'none', 'err'].forEach(id => $(id).classList.add('hidden'));
+  ['results', 'none', 'err'].forEach(id => $(id).classList.add('hidden')); $('consentCard').classList.remove('hidden');
   $('busy').classList.remove('hidden');
   const fd = new FormData(); fd.append('selfie', file); fd.append('consent', 'yes');
   try {
     const r = await fetch('/search', {method: 'POST', body: fd}); const j = await r.json();
     if (!r.ok) { $('err').textContent = j.detail; $('err').classList.remove('hidden'); return; }
     if (!j.count) { $('none').classList.remove('hidden'); return; }
-    const maybe = j.count - j.strong;
-    $('found').textContent = j.strong
-      ? `🎉 Found ${j.strong} photo${j.strong > 1 ? 's' : ''} of you` + (maybe ? ` (+${maybe} maybe)` : '')
-      : `🤔 ${j.count} photo${j.count > 1 ? 's' : ''} might be you`;
-    $('dl').href = `/download/${j.token}`;
-    $('grid').innerHTML = '';
-    for (let i = 0; i < j.count; i++) {
-      const fig = document.createElement('figure'); fig.className = j.sure[i] ? 'sure' : 'maybe';
-      const im = new Image(); im.loading = 'lazy'; im.alt = 'Your photo ' + (i + 1); im.src = `/preview/${j.token}/${i}`;
-      fig.append(im);
-      if (!j.sure[i]) { const tag = document.createElement('span'); tag.textContent = 'Maybe you?'; fig.append(tag); }
-      $('grid').append(fig);
-    }
-    $('results').classList.remove('hidden');
-    $('results').scrollIntoView({behavior: 'smooth'});
+    render(j);
   } catch {
     $('err').textContent = "Couldn't reach the photographer's laptop. Are you connected to the event Wi-Fi?";
     $('err').classList.remove('hidden');
   } finally { $('busy').classList.add('hidden'); }
 }
+
+// ---------- results ----------
+let R = null, kept = [], viewing = 0;
+const visible = () => R.order.filter(i => kept[i] !== false);
+
+function updateSummary() {
+  const n = R.sure.filter(Boolean).length, m = R.count - n;
+  const keep = kept.filter(k => k === true).length;
+  $('count').textContent = keep;
+  $('found').textContent = n ? `Found ${n} photo${n > 1 ? 's' : ''} of you` : `${m} photo${m > 1 ? 's' : ''} might be you`;
+  $('sub').textContent = m ? `${keep} photo${keep === 1 ? '' : 's'} in your download · ${m} to check below` : 'All sure matches · watermarked previews';
+  const only = kept.map((k, i) => k === true ? i : null).filter(i => i !== null);
+  $('dl').href = `/download/${R.token}?only=${only.join(',')}`;
+  $('dl').setAttribute('aria-disabled', !only.length);
+  $('maybeCount').textContent = m ? `${m} photo${m > 1 ? 's' : ''}` : '';
+}
+
+function card(i) {
+  const f = document.createElement('figure');
+  f.className = 'ph ' + (R.sure[i] ? 'sure' : 'maybe'); f.dataset.i = i;
+  f.innerHTML = `<img loading="lazy" alt="Your photo ${i + 1}" src="/preview/${R.token}/${i}"><span class="tag">${R.sure[i] ? '✓ You' : 'Maybe'}</span>`;
+  if (!R.sure[i]) {
+    const act = document.createElement('div'); act.className = 'act';
+    act.innerHTML = '<button class="yes" type="button">✓ Me</button><button class="no" type="button">Not me</button>';
+    act.querySelector('.yes').onclick = e => { e.stopPropagation(); kept[i] = true; f.classList.add('confirmed'); f.classList.remove('removed'); f.querySelector('.tag').textContent = '✓ You'; updateSummary(); };
+    act.querySelector('.no').onclick = e => {
+      e.stopPropagation();
+      const removed = f.classList.toggle('removed'); kept[i] = removed ? false : null;
+      e.target.textContent = removed ? 'Undo' : 'Not me'; updateSummary();
+    };
+    f.append(act);
+  }
+  f.onclick = () => openViewer(i);
+  return f;
+}
+
+function render(j) {
+  R = j; R.order = [...Array(j.count).keys()]; kept = R.sure.map(s => s ? true : null);
+  $('sureGrid').innerHTML = ''; $('maybeGrid').innerHTML = '';
+  R.order.forEach(i => (R.sure[i] ? $('sureGrid') : $('maybeGrid')).append(card(i)));
+  $('sureBox').classList.toggle('hidden', !R.sure.some(Boolean));
+  $('maybeBox').classList.toggle('hidden', R.sure.every(Boolean));
+  updateSummary();
+  $('results').classList.remove('hidden');
+  $('consentCard').classList.add('hidden');
+  $('results').scrollIntoView({behavior: 'smooth'});
+}
+
+function openViewer(i) { viewing = i; showViewer(); $('viewer').classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+function showViewer() {
+  $('vImg').src = `/preview/${R.token}/${viewing}`;
+  $('vDl').href = `/photo/${R.token}/${viewing}`;
+  const mine = kept[viewing] === true;
+  $('vDl').classList.toggle('hidden', !mine); $('vMe').classList.toggle('hidden', mine);
+  $('vPos').textContent = `${viewing + 1} of ${R.count}` + (R.sure[viewing] ? '' : ' · maybe you');
+}
+function step(d) { viewing = (viewing + d + R.count) % R.count; showViewer(); }
+function closeViewer() { $('viewer').classList.add('hidden'); document.body.style.overflow = ''; }
+$('vMe').onclick = () => { const f = [...document.querySelectorAll('#maybeGrid .ph')].find(x => x.dataset.i == viewing); if (f) f.querySelector('.yes').click(); showViewer(); };
+$('vClose').onclick = closeViewer; $('vPrev').onclick = () => step(-1); $('vNext').onclick = () => step(1);
+$('viewer').onclick = e => { if (e.target.id === 'viewer') closeViewer(); };
+addEventListener('keydown', e => { if ($('viewer').classList.contains('hidden')) return; if (e.key === 'Escape') closeViewer(); if (e.key === 'ArrowLeft') step(-1); if (e.key === 'ArrowRight') step(1); });
+$('again').onclick = () => { $('results').classList.add('hidden'); $('consentCard').classList.remove('hidden'); $('consentCard').scrollIntoView({behavior: 'smooth'}); };
+
 ['cam', 'gal'].forEach(id => $(id).onchange = e => { const f = e.target.files[0]; e.target.value = ''; search(f); });
 </script>
 </body>

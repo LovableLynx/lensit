@@ -12,7 +12,7 @@ from pathlib import Path
 
 import qrcode
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
-from fastapi.responses import HTMLResponse, RedirectResponse, Response, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from PIL import Image, ImageDraw, ImageFont
 
@@ -229,13 +229,30 @@ def preview(token: str, i: int):
     return Response(buf.getvalue(), media_type="image/jpeg")
 
 
-@app.get("/download/{token}")
-def download(token: str):
+@app.get("/photo/{token}/{i}")
+def photo(token: str, i: int):
+    """One full-quality photo from the guest's own results."""
     ids = session(token)
+    if not 0 <= i < len(ids):
+        raise HTTPException(404)
+    p = index.path(ids[i])
+    return FileResponse(p, filename=p.name)
+
+
+@app.get("/download/{token}")
+def download(token: str, only: str = ""):
+    """ZIP of the guest's photos; `only` (e.g. "0,2,3") limits it to the ones they kept."""
+    ids = session(token)
+    picked = range(len(ids))
+    if only:
+        try:
+            picked = sorted({int(x) for x in only.split(",") if 0 <= int(x) < len(ids)})
+        except ValueError:
+            raise HTTPException(400, "Bad photo list.")
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_STORED) as z:
-        for pid in ids:
-            p = index.path(pid)
+        for i in picked:
+            p = index.path(ids[i])
             z.write(p, p.name)
     buf.seek(0)
     return StreamingResponse(buf, media_type="application/zip",
