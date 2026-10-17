@@ -516,6 +516,7 @@ footer .logo .wmark span,.cta ol b{color:var(--orange-light)!important}footer .l
       <details><summary>What laptop do I need?</summary><p>An ordinary Windows 10/11 laptop (Mac and Linux can run it from source). It's been built and tested on an 8 GB Intel i5 with no GPU.</p></details>
       <details><summary>How accurate is the matching?</summary><p>It works best with clear, front-facing selfies and reasonably lit photos. We're testing on real events now and will publish the results, including misses.</p></details>
       <details><summary>How do I get paid?</summary><p>For now, guests see watermarked previews and you share full photos after payment by transfer. Built-in payments are on the roadmap.</p></details>
+      <details><summary>How can I give feedback or report a problem?</summary><p>Use our short <a href="https://github.com/Wandercoil/lensit/issues/new?template=feedback.yml" target="_blank" rel="noopener" data-feedback>feedback form</a>. It takes about a minute (you need a free GitHub account), and your feedback is public, so please don't include photos or anyone's personal details. The app itself works offline, so feedback is always sent from here, never automatically.</p></details>
       <details><summary>Is it free?</summary><p>Yes. Lens It is open source. There's no subscription and no per-event fee.</p></details>
     </div>
   </div>
@@ -539,7 +540,7 @@ footer .logo .wmark span,.cta ol b{color:var(--orange-light)!important}footer .l
     <div class="fcols">
       <div><a class="logo" href="#"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#04124c"/><path d="M17 27V47H37M47 37V17H27" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="32" r="6" fill="#f87a1b"/></svg><span class="wmark">Lens<span style="color:var(--orange)"> It</span></span></a><p>Find yourself in every moment.<br>Made in Nigeria for photographers everywhere.</p></div>
       <div><h4>Product</h4><a href="#demo">Live demo</a><a href="#how">How it works</a><a href="#earn">Earnings planner</a></div>
-      <div><h4>Trust</h4><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Use</a><a href="privacy.html#cookies">Cookies (none)</a><a href="#faq">FAQ</a></div>
+      <div><h4>Trust</h4><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Use</a><a href="privacy.html#cookies">Cookies (none)</a><a href="#faq">FAQ</a><a href="https://github.com/Wandercoil/lensit/issues/new?template=feedback.yml" target="_blank" rel="noopener" data-feedback>Send feedback</a></div>
       <div><h4>Open source</h4><a href="https://github.com/Wandercoil/lensit">GitHub</a><a href="#open">Models &amp; licences</a></div>
     </div>
     <div class="fbot"><span><a class="wc" href="https://github.com/Wandercoil/lensit" title="Lens It is a Wandercoil product"><svg class="wc-mark" viewBox="0 0 120 120" aria-hidden="true"><path d="M18,16 L38,16 L38,50 L18,70 Z M102,104 L82,104 L82,70 L102,50 Z" fill="currentColor"/></svg><span>A Wandercoil Product</span></a></span><span>© 2026 WANDERCOIL · Open source (AGPL-3.0) · No cookies. No tracking.</span></div>
@@ -625,5 +626,6 @@ const io = new IntersectionObserver(es => es.forEach(e => {
 }), {threshold: .15});
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 </script>
+<script src="feedback.js" defer></script>
 </body>
 </html>

@@ -160,6 +160,7 @@ h1{font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--navy);letter-spac
       <div class="summary">
         <div class="top"><div class="count" id="rCount">0</div><div><h3 id="rFound"></h3><p class="sub2" id="rSub"></p></div></div>
         <p class="note2">Matched entirely on this device. At a real event, guests download their full-quality photos from the photographer's laptop.</p>
+        <p class="note2">How did it go? <a href="https://github.com/Wandercoil/lensit/issues/new?template=feedback.yml" target="_blank" rel="noopener" data-feedback><b>Send feedback →</b></a> (please don't include photos)</p>
       </div>
       <div id="rSureBox"><div class="sec"><h4>Your photos</h4><span>Tap to view</span></div><div class="rgrid" id="rSure"></div></div>
       <div id="rMaybeBox"><div class="sec"><h4>Maybe you?</h4><span id="rMaybeCount"></span></div>
@@ -168,7 +169,7 @@ h1{font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--navy);letter-spac
     </div>
   </section>
 
-  <p class="note">How it works: <strong>YuNet</strong> finds faces and <strong>SFace</strong> turns each one into 128 numbers. Faces are compared by cosine similarity (a match is ≥ 0.363, OpenCV's recommended threshold). Both models are Apache-2.0, from <a href="https://github.com/opencv/opencv_zoo">opencv_zoo</a>, and run with ONNX Runtime Web. Results can include misses, especially for side profiles, sunglasses or dark photos. <a href="https://github.com/Wandercoil/lensit">Source code</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · No cookies.</p>
+  <p class="note">How it works: <strong>YuNet</strong> finds faces and <strong>SFace</strong> turns each one into 128 numbers. Faces are compared by cosine similarity (a match is ≥ 0.363, OpenCV's recommended threshold). Both models are Apache-2.0, from <a href="https://github.com/opencv/opencv_zoo">opencv_zoo</a>, and run with ONNX Runtime Web. Results can include misses, especially for side profiles, sunglasses or dark photos. <a href="https://github.com/Wandercoil/lensit">Source code</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="https://github.com/Wandercoil/lensit/issues/new?template=feedback.yml" target="_blank" rel="noopener" data-feedback>Feedback</a> · No cookies.</p>
   <p class="note" style="padding-bottom:40px;margin-top:-30px"><a class="wc" href="https://github.com/Wandercoil/lensit" title="Lens It is a Wandercoil product"><svg class="wc-mark" viewBox="0 0 120 120" aria-hidden="true"><path d="M18,16 L38,16 L38,50 L18,70 Z M102,104 L82,104 L82,70 L102,50 Z" fill="currentColor"/></svg><span>A Wandercoil Product</span></a></p>
 </main>
 
@@ -511,5 +512,6 @@ addEventListener('keydown', e => { if ($('viewer').classList.contains('hidden'))
 
 loadModels();
 </script>
+<script src="feedback.js" defer></script>
 </body>
 </html>

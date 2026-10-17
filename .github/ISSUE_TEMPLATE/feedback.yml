@@ -1,0 +1,63 @@
+name: Feedback
+description: Tell us what worked, what didn't, or what you'd like Lens It to do.
+title: "[Feedback] "
+labels: ["feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping make Lens It better! This form is **public**, so please don't include photos, faces, names of guests, or any private details.
+  - type: dropdown
+    id: who
+    attributes:
+      label: I am a…
+      options:
+        - Photographer / event organiser
+        - Guest at an event
+        - Just trying the website
+        - Developer
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where did you use Lens It?
+      options:
+        - The "Try it" page on the website
+        - The Windows app (LensIt.exe)
+        - The guest page on my phone at an event
+        - Just reading the website
+    validations:
+      required: true
+  - type: dropdown
+    id: rating
+    attributes:
+      label: How useful is Lens It for you?
+      options:
+        - "5 - Love it"
+        - "4 - Useful"
+        - "3 - OK"
+        - "2 - Not really"
+        - "1 - Not useful"
+    validations:
+      required: true
+  - type: textarea
+    id: good
+    attributes:
+      label: What worked well?
+  - type: textarea
+    id: bad
+    attributes:
+      label: What went wrong, or what was confusing?
+      description: If a photo wasn't found, describe it (e.g. "sideways photo", "group of 20 people", "dark venue") instead of attaching it.
+  - type: textarea
+    id: wish
+    attributes:
+      label: What would you like Lens It to do next?
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy
+      options:
+        - label: I haven't included any photos, faces or other people's personal details.
+          required: true
