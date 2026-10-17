@@ -4,7 +4,7 @@
 
 **Find yourself in every moment.**
 
-[![CI](https://github.com/LovableLynx/lensit/actions/workflows/ci.yml/badge.svg)](https://github.com/LovableLynx/lensit/actions/workflows/ci.yml) [![Release](https://github.com/LovableLynx/lensit/actions/workflows/release.yml/badge.svg)](https://github.com/LovableLynx/lensit/actions/workflows/release.yml)
+[![CI](https://github.com/Wandercoil/lensit/actions/workflows/ci.yml/badge.svg)](https://github.com/Wandercoil/lensit/actions/workflows/ci.yml) [![Release](https://github.com/Wandercoil/lensit/actions/workflows/release.yml/badge.svg)](https://github.com/Wandercoil/lensit/actions/workflows/release.yml)
 
 Offline, local-first event photo finder. A photographer indexes a shoot on their laptop; guests at the venue scan a QR code, take a selfie, and get every photo they're in — **without the internet**.
 
@@ -19,7 +19,7 @@ Offline, local-first event photo finder. A photographer indexes a shoot on their
 | Face recognition | SFace (opencv_zoo) | Apache-2.0 |
 
 ## Quick start (Windows, no coding)
-Download **LensIt.exe** from the [latest release](https://github.com/LovableLynx/lensit/releases/latest) and double-click it. No Python needed. If Windows shows "Windows protected your PC", click **More info → Run anyway** (the app isn't code-signed yet).
+Download **LensIt.exe** from the [latest release](https://github.com/Wandercoil/lensit/releases/latest) and double-click it. No Python needed. If Windows shows "Windows protected your PC", click **More info → Run anyway** (the app isn't code-signed yet).
 
 ### Or run from source with the launcher
 1. Install Python 3.11+ from python.org and tick **Add python.exe to PATH**.
@@ -36,7 +36,7 @@ python -m lensit purge        # delete face data now
 Guests must be on the same Wi-Fi/hotspot as the laptop.
 
 ## Website
-Landing page: https://lovablelynx.github.io/lensit/ (source in `docs/`).
+Landing page: https://wandercoil.github.io/lensit/ (source in `docs/`).
 
 ## Development
 ```bash
@@ -46,7 +46,7 @@ python -m pytest -q tests
 ```
 Every push runs the tests on GitHub Actions. Pushing a tag like `v0.2.0` makes GitHub test, build and publish `LensIt.exe` with its SHA-256 checksum and a signed build attestation, so anyone can verify the file was built from this repo:
 ```bash
-gh attestation verify LensIt.exe --repo LovableLynx/lensit
+gh attestation verify LensIt.exe --repo Wandercoil/lensit
 ```
 
 ## License

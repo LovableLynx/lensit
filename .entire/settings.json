@@ -3,7 +3,7 @@
   "strategy_options": {
     "checkpoint_remote": {
       "provider": "github",
-      "repo": "LovableLynx/lensit-sessions"
+      "repo": "Wandercoil/lensit-sessions"
     },
     "push_sessions": false
   },
